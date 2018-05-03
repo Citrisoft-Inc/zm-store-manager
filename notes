@@ -1,0 +1,135 @@
+TODO
+====
+
+* should add custom exception classes for profile load failures, among other things
+
+* locator factory should error on null path
+
+* make path creation optional?
+
+* need to figure out how to handle crypt keys
+  - should be able to specify cert for individual message
+* revisit whether to sit on top of ExternalStoreManager
+
+
+# origInputStream
+
+getCompressedStream(is)
+	return (compressClass?) ? compressClass.getInputStream(is) : is
+
+getEncryptedStream(is)
+	return (encryptionClass?) ? encrpytionClass.getInputStream(is) : is
+
+is = getEncryptedStream(getCompressedStream(is));
+
+DONE
+====
+* move storage to new backend class to facilitate mixed storage
+
+* seperate concept of locator from key
+
+	location	path or key
+	profile		backend configuration
+    locator 	compound: profile@@locator
+
+DISCARD
+=======
+* instead create profile system; locator becomes compound profile + location; e.g.
+	"file:/opt/zimbra/zimberg/0/1/msg/0/1-1.msg"
+    "hcp:ab/cd/fnord"
+
+		* create URI scheme for locator to allow specification of backend, encryption, compression, etc; e.g.
+
+		s3://MyBucket/MyKey?params
+
+		* maybe simplify further and have profile:key
+
+		* store config in prop files by default; e.g.
+
+		locator_class:com.synacor.zimbra.store.locator.Default
+		store_class:com.synacor.zimbra.store.backend.S3
+		compress_class:com.synacor.zimbra.store.crypt.LZ4
+		encryption_class:com.synacor.zimbra.store.crypt.AES
+		encryption_aes_keystore:zimberg.jck
+		encryption_aes_alias:default
+		encryption_aes_password:i0wnj00
+
+S3
+==
+
+http://docs.aws.amazon.com/AmazonS3/latest/API/s3-api.pdf#RESTObjectGET
+:w
+http://docs.aws.amazon.com/general/latest/gr/sigv4-create-canonical-request.html
+
+http://czak.pl/2015/09/15/s3-rest-api-with-curl.html
+curl -v https://my-precious-bucket.s3.amazonaws.com/ \
+     -H "Authorization: AWS4-HMAC-SHA256 \
+         Credential=AKIAIOSFODNN7EXAMPLE/20150915/us-east-1/s3/aws4_request, \
+         SignedHeaders=host;x-amz-content-sha256;x-amz-date, \
+         Signature=182072eb53d85c36b2d791a1fa46a12d23454ec1e921b02075c23aee40166d5a" \
+     -H "x-amz-content-sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" \
+     -H "x-amz-date: 20150915T124500Z"
+
+thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
+                              .withZone(ZoneOffset.UTC)
+                              .format(Instant.now());
+
+20170725T170936Z
+20150915T124500Z
+
+The host header must be included as a signed header. If you include a date or x-amz-date header, you must also include that header in the list of signed headers.
+
+
+
+
+---
+
+ List<Integer> numbers = Arrays.asList(1, 2, 3, 4);
+ String commaSeparatedNumbers = numbers.stream()
+     .map(i -> i.toString())
+     .collect(Collectors.joining(", "));
+ https://docs.oracle.com/javase/8/docs/api/java/util/StringJoiner.html
+
+
+--- amz error
+
+<?xml version="1.0" encoding="UTF-8"?>
+<Error><Code>SignatureDoesNotMatch</Code>
+
+<Message>The request signature we calculated does not match the signature you provided. Check your key and signing method.</Message>
+
+<AWSAccessKeyId>
+	AKIAJDSXFCE2TP3I6LXQ
+</AWSAccessKeyId>
+
+<StringToSign>
+	AWS4-HMAC-SHA256
+	20170726T014241Z
+	20170726/us-east-2/s3/aws4_request
+	552e38de4afc88461e0ee1441bce2a2d626c82b7895b43ccfc8e10aa5dfabc8f
+</StringToSign>
+
+<SignatureProvided>
+	850a5874edce299e299890d06015c7cdf084d08a6ff8290dec4ec8785183ed2b
+</SignatureProvided>
+
+<CanonicalRequest>
+	GET
+	/fnord
+
+	host:zimberg.s3.amazonaws.com
+	x-amz-content-sha256:UNSIGNED-PAYLOAD
+	x-amz-date:20170726T014241Z
+
+	host;x-amz-content-sha256;x-amz-date
+	UNSIGNED-PAYLOAD
+</CanonicalRequest>
+
+<RequestId>
+	0516CE4302DF6F6A
+</RequestId>
+
+<HostId>
+	LOrbcVR2Qwr3hMb7O7bVtU6OYLICO+xo91lraXX2yluD8oSQsSfpdLAi/E0bt7vdRZQjfDqhfeI=
+</HostId>
+
