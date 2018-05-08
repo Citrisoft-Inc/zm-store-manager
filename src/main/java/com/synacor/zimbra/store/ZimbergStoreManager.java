@@ -26,9 +26,14 @@ public class ZimbergStoreManager extends ExternalStoreManager
 	private static KnownKey profilePath = new KnownKey("zimberg_store_profile_path", "${zimbra_home}/conf/storemanager.d");
 	/** Holds the name of the default profile */
 	private static KnownKey profileName = new KnownKey("zimberg_store_default_profile", "default");
+	/** Holds the name of the fallback profile */
+	private static KnownKey fallbackName = new KnownKey("zimberg_store_fallback_profile", "default");
 
 	/** Holds the default store profile for persisting new blobs */
 	Profile defaultProfile;
+
+	/** Holds the fallback store profile for persisting new blobs */
+	Profile fallbackProfile;
 
 	/** Constructs an uninitialized StoreManager instance */
 	public ZimbergStoreManager()
@@ -49,9 +54,7 @@ public class ZimbergStoreManager extends ExternalStoreManager
 	}
 
 	/**
-	 * Extracts profile from locator string or returns default implementation
-	 *
-	 * FIXME: Consider explicit fallback profile
+	 * Extracts profile from locator string or returns fallback implementation
 	 *
 	 * @param locator The stored locator of a blob
 	 * @return Profile profile to use for accessing the blob
@@ -60,7 +63,7 @@ public class ZimbergStoreManager extends ExternalStoreManager
 	{
 		String[] parts = locator.split("@@", 2);
 
-		return (parts.length == 2) ? Profiles.get(parts[0]) : defaultProfile;
+		return (parts.length == 2) ? Profiles.get(parts[0]) : fallbackProfile;
 	}
 
 	/**
@@ -72,9 +75,11 @@ public class ZimbergStoreManager extends ExternalStoreManager
 		Profiles.load(profilePath.value());
 		// FIXME: Need to handle non-existent profiles properly.
 		defaultProfile = Profiles.get(profileName.value());
+		fallbackProfile = Profiles.get(fallbackName.value());
 
 		ZimbraLog.store.info("Zimberg Store Manager: profile path: " + profilePath.value());
 		ZimbraLog.store.info("Zimberg Store Manager: default profile: " + profileName.value());
+		ZimbraLog.store.info("Zimberg Store Manager: fallback profile: " + fallbackName.value());
 
 		super.startup();
 	}
