@@ -1,0 +1,8 @@
+com.synacor.util
+com.synacor.util.aws
+com.synacor.util.cli
+com.synacor.zimbra.store
+com.synacor.zimbra.store.backend
+com.synacor.zimbra.store.crypt
+com.synacor.zimbra.store.location
+com.synacor.zimbra.store.profile
