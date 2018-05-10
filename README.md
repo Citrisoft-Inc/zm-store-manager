@@ -172,3 +172,7 @@ filesystem_test@@/opt/zimbra/store/85eb9e75-564e-4d21-aae6-2d0ab281caaa/260
 hcp_test@@A0/86/6A676742-FD60-4C2D-8F79-E476A122E922/00000104-15DCDE756CF
 
 This allows a system to be seamlessly switched to a new backend without needing to migrate the existing data, and should facilitate cross-backend HSM or deployment of new encryption keys.
+
+## Additional Information
+
+* [JavaDoc](https://zimbraos.github.io/zm-store-manager/)
