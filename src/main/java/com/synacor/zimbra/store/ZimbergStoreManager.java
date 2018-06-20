@@ -7,10 +7,16 @@ import java.util.ArrayList;
 import com.zimbra.common.localconfig.KnownKey;
 import com.zimbra.common.localconfig.LC;
 import com.zimbra.common.service.ServiceException;
+import com.zimbra.common.util.Constants;
+import com.zimbra.common.util.FileCache;
 import com.zimbra.common.util.ZimbraLog;
 import com.zimbra.cs.mailbox.Mailbox;
+import com.zimbra.cs.store.Blob;
 import com.zimbra.cs.store.MailboxBlob;
+import com.zimbra.cs.store.external.ExternalBlob;
 import com.zimbra.cs.store.external.ExternalStoreManager;
+import com.zimbra.cs.stats.ActivityTracker;
+import com.zimbra.common.stats.StatsDumper;
 
 import com.synacor.zimbra.store.backend.Backend;
 import com.synacor.zimbra.store.backend.FileBackend;
@@ -35,9 +41,12 @@ public class ZimbergStoreManager extends ExternalStoreManager
 	/** Holds the fallback store profile for persisting new blobs */
 	Profile fallbackProfile;
 
+	public static final ActivityTracker activityTracker = new ActivityTracker("store.csv");
+
 	/** Constructs an uninitialized StoreManager instance */
 	public ZimbergStoreManager()
 	{
+		StatsDumper.schedule(activityTracker, Constants.MILLIS_PER_MINUTE);
 	}
 
 	/**
@@ -100,7 +109,9 @@ public class ZimbergStoreManager extends ExternalStoreManager
 		String location = defaultProfile.locationFactory.generateLocation(mbox);
 		String locator = defaultProfile.name + "@@" + location;
 
+		long startTime = System.currentTimeMillis();
 		defaultProfile.backend.store(is, location, actualSize);
+		activityTracker.addStat("PUT", startTime);
 
 		return locator;
 	}		
@@ -129,7 +140,9 @@ public class ZimbergStoreManager extends ExternalStoreManager
 	public boolean deleteFromStore(String locator, Mailbox mbox)
 		throws IOException
 	{
+		long startTime = System.currentTimeMillis();
 		getProfile(locator).backend.delete(getLocation(locator));
+		activityTracker.addStat("DELETE", startTime);
 
 		return true;
 	}
@@ -145,7 +158,11 @@ public class ZimbergStoreManager extends ExternalStoreManager
 	public boolean validateFromStore(String locator, Mailbox mbox)
 		throws IOException
 	{
-		return getProfile(locator).backend.verify(getLocation(locator));
+		long startTime = System.currentTimeMillis();
+		boolean isValid = getProfile(locator).backend.verify(getLocation(locator));
+		activityTracker.addStat("VERIFY", startTime);
+
+		return isValid;
 	}
 
 	/**
@@ -166,4 +183,47 @@ public class ZimbergStoreManager extends ExternalStoreManager
 		return mblob.validateBlob() ? mblob : null;
 	}
 
+	/**
+	 * Returns a local instance of a blob, pulling from the retore store if necessary
+	 *
+	 * Overriding to add in tracking for remote fetches since readStreamFromStore only
+	 * measures the time to get the InputStream
+	 *
+	 * @param mbox The mailbox containing the blob
+	 * @param locator The stored locator for a mailbox blob object
+	 * @param fromCache Whether to retrieve cached object if available
+	 **/
+	@Override
+	protected Blob getLocalBlob(Mailbox mbox, String locator, boolean fromCache)
+		throws IOException
+	{
+		FileCache.Item cached = null;
+		if (fromCache)
+		{
+			cached = localCache.get(locator);
+			if (cached != null)
+			{
+				ExternalBlob blob = new ExternalBlob(cached.file, cached.file.length(), cached.digest);
+				blob.setLocator(locator);
+				blob.setMbox(mbox);
+				return blob;
+			}
+		}
+
+		long startTime = System.currentTimeMillis();
+		InputStream is = readStreamFromStore(locator, mbox);
+		if (is == null)
+		{
+			throw new IOException("Store " + this.getClass().getName() +" returned null for locator " + locator);
+		}
+		else
+		{
+			cached = localCache.put(locator, is);
+			activityTracker.addStat("GET", startTime);
+			ExternalBlob blob = new ExternalBlob(cached.file, cached.file.length(), cached.digest);
+			blob.setLocator(locator);
+			blob.setMbox(mbox);
+			return blob;
+		}
+	}
 }
