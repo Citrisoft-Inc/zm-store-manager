@@ -165,9 +165,9 @@ public class S3Backend
 			Signature signature = canonicalRequest.sign(signingKey, instant);
 			String authorization = signature.getAuthorizationString(accessKey);
 
-			ZimbraLog.store.debug("Zimberg Store Manager: S3 signing key: " + signingKey.toHexString());
-			ZimbraLog.store.debug("Zimberg Store Manager: S3 signature: " + signature.toHexString());
-			ZimbraLog.store.debug("Zimberg Store Manager: S3 auth string: " + authorization);
+			ZimbraLog.store.trace("Zimberg Store Manager: S3 signing key: " + signingKey.toHexString());
+			ZimbraLog.store.trace("Zimberg Store Manager: S3 signature: " + signature.toHexString());
+			ZimbraLog.store.trace("Zimberg Store Manager: S3 auth string: " + authorization);
 
 			method.addRequestHeader("Authorization", authorization);
 		}
