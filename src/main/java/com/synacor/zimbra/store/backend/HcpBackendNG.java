@@ -7,17 +7,11 @@ import java.net.URISyntaxException;
 import java.util.Properties;
 
 import org.apache.http.client.CookieStore;
-import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.utils.URIUtils;
 import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.cookie.BasicClientCookie;
 
@@ -88,6 +82,8 @@ public class HcpBackendNG
 		String encUsername = ByteUtil.encodeFSSafeBase64(username.getBytes());
 		String encPassword = ByteUtil.getMD5Digest(password.getBytes(), false);
 
+		HttpClientBuilder builder = getClientBuilder();
+
 		String cookieHost = baseURI.getHost();
 
 		CookieStore cookieStore = new BasicCookieStore();
@@ -97,16 +93,11 @@ public class HcpBackendNG
 		authCookie.setSecure(false);
 		cookieStore.addCookie(authCookie);
 
-		RequestConfig requestConfig = RequestConfig.custom()
-			.setCookieSpec(CookieSpecs.DEFAULT)
-			.build();
-
-		ZimbraLog.store.debug("Zimberg Store Manager: HCP hcp-ns-auth: " + authCookie.toString());
-
-		HttpClientBuilder builder = HttpClients.custom();
 		builder.setDefaultCookieStore(cookieStore);
-		builder.setDefaultRequestConfig(requestConfig);
-		this.httpClient = configureClient(builder).build();
+
+		ZimbraLog.store.debug("Zimberg Store Manager: HCP: " + authCookie.toString());
+
+		this.httpClient = builder.build();
 	}
 
 	public URI generateURI(String location)

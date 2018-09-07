@@ -32,10 +32,7 @@ import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustStrategy;
-//import org.apache.http.conn.ssl.TrustAllStrategy; // FIXME: Remove custom impl after upgrade to 4.5.4+
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -46,6 +43,8 @@ import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 
+import com.zimbra.common.net.CustomHostnameVerifier;
+import com.zimbra.common.net.SocketFactories;
 import com.zimbra.common.util.ZimbraLog;
 
 /** Base class for HTTP-based object store backends using a dedicated HttpClient pool */
@@ -57,46 +56,25 @@ public abstract class HttpClientBackend
 
 	public HttpClientBackend()
 	{
-		HttpClientBuilder builder = HttpClients.custom();
-		this.httpClient = configureClient(builder).build();
 	}
-
-	/** Temporary implementation of TrustStrategy for ssl_allow_accept_untrusted_certs=true */
-	private class TrustEverythingStrategy
-		implements TrustStrategy
-	{
-		public boolean isTrusted(X509Certificate[] chain, String authType)
-			throws CertificateException
-		{
-				return true;
-		}
-	};
 
 	/**
 	 *
 	 * Default httpClient configuration; override to customize
 	 *
 	 */
-	public HttpClientBuilder configureClient(HttpClientBuilder builder)
+	public HttpClientBuilder getClientBuilder()
 	{
-		//FIXME: Make this honor lc variables;
-		TrustStrategy trustStrategy = new TrustEverythingStrategy();
-		HostnameVerifier hostnameVerifier = new NoopHostnameVerifier();
-		SSLContext sslContext;
-		try
-		{
-			sslContext = SSLContexts.custom().loadTrustMaterial(new TrustEverythingStrategy()).build();
-		}
-		catch (NoSuchAlgorithmException | KeyStoreException | KeyException e)
-		{
-			sslContext = SSLContexts.createDefault();
-		}
-		SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
-		PlainConnectionSocketFactory plainSocketFactory = new PlainConnectionSocketFactory();
+		HttpClientBuilder builder = HttpClients.custom();
+
+		ConnectionSocketFactory sslFactory = new SSLConnectionSocketFactory(
+			SocketFactories.defaultSSLSocketFactory(), new CustomHostnameVerifier());
+		ConnectionSocketFactory plainFactory = new PlainConnectionSocketFactory();
+
 		Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
-				.register("https", sslSocketFactory)
-				.register("http", plainSocketFactory)
-				.build();
+			.register("https", sslFactory)
+			.register("http", plainFactory)
+			.build();
 
 		PoolingHttpClientConnectionManager manager = new PoolingHttpClientConnectionManager(registry);
 		manager.setMaxTotal(16);		   // FIXME: Make configurable
