@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
@@ -15,7 +16,9 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 
@@ -23,11 +26,12 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.utils.URIUtils;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
@@ -47,24 +51,62 @@ import com.zimbra.common.net.CustomHostnameVerifier;
 import com.zimbra.common.net.SocketFactories;
 import com.zimbra.common.util.ZimbraLog;
 
-/** Base class for HTTP-based object store backends using a dedicated HttpClient pool */
+/** Base class for HTTP-based object store backends using a dedicated HttpClient pool
+  *
+  * It is expected at miminum that implementing classes will override one or more of 
+  * the following methods:
+  *
+  * getURI(String locator)
+  * configureClient(HttpClientBuilder builder)
+  * configureRequest(RequestBuilder builder)
+  * executeRequest(HttpUriRequest request)
+  **/
 public abstract class HttpClientBackend
 	extends Backend
 {
 	/** The default http client object */
 	protected CloseableHttpClient httpClient;
 
-	public HttpClientBackend()
-	{
-	}
+	/** Properties */
+	public Properties props;
 
-	/**
-	 *
-	 * Default httpClient configuration; override to customize
-	 *
-	 */
-	public HttpClientBuilder getClientBuilder()
+	/** Base endpoint URI */
+	public URI baseURI;
+
+	/** Target URI (if different than base URI) */
+	public URI targetURI;
+
+	/** Target host object */
+	protected HttpHost targetHost;
+
+	public HttpClientBackend(Properties props)
 	{
+		this.props = props;
+
+		String baseURIStr = props.getProperty("base_uri");
+		String targetURIStr = props.getProperty("target_uri");
+		try
+		{
+			this.baseURI = new URI(baseURIStr);
+
+			if (targetURIStr != null)
+			{   
+				this.targetURI = new URI(targetURIStr);
+			
+				this.targetHost = URIUtils.extractHost(targetURI);
+			}
+			else
+			{   
+				this.targetHost = URIUtils.extractHost(baseURI);
+			}
+
+			ZimbraLog.store.debug("Zimberg Store Manager: setting target host to: %s", this.targetHost);
+		}
+		catch (URISyntaxException e)
+		{
+			throw new IllegalArgumentException("Could not parse URI.", e);
+		}
+
 		HttpClientBuilder builder = HttpClients.custom();
 
 		ConnectionSocketFactory sslFactory = new SSLConnectionSocketFactory(
@@ -84,19 +126,25 @@ public abstract class HttpClientBackend
 		builder.evictExpiredConnections();
 		builder.evictIdleConnections(30, TimeUnit.SECONDS);
 
+		this.httpClient = configureClient(builder).build();
+	}
+
+
+	public HttpClientBuilder configureClient(HttpClientBuilder builder)
+	{
 		return builder;
 	}
 
 	public void delete(String location)
 		throws IOException
 	{
-		HttpUriRequest method = deleteBuilder(location).build();
-		ZimbraLog.store.debug("Zimberg Store Manager: delete object: %s", method.getURI());
+		HttpUriRequest request = deleteBuilder(location).build();
+		ZimbraLog.store.debug("Zimberg Store Manager: delete object: %s", request.getURI());
 
 		int statusCode;
 		String statusPhrase;
 
-		CloseableHttpResponse response = httpClient.execute(method);
+		CloseableHttpResponse response = executeRequest(request);
 		try
 		{
 			EntityUtils.consume(response.getEntity()); // drain any possible response body
@@ -128,10 +176,10 @@ public abstract class HttpClientBackend
 		throws IOException
 	{
 
-		HttpUriRequest method = getBuilder(location).build();
-		ZimbraLog.store.debug("Zimberg Store Manager: retrieve object: %s", method.getURI());
+		HttpUriRequest request = getBuilder(location).build();
+		ZimbraLog.store.debug("Zimberg Store Manager: retrieve object: %s", request.getURI());
 
-		CloseableHttpResponse response = httpClient.execute(method);
+		CloseableHttpResponse response = executeRequest(request);
 		StatusLine status = response.getStatusLine();
 		int statusCode = status.getStatusCode();
 		String statusPhrase = status.getReasonPhrase();
@@ -177,13 +225,13 @@ public abstract class HttpClientBackend
 	public boolean verify(String location)
 		throws IOException
 	{
-		HttpUriRequest method = verifyBuilder(location).build();
-		ZimbraLog.store.debug("Zimberg Store Manager: verify object: %s", method.getURI());
+		HttpUriRequest request = verifyBuilder(location).build();
+		ZimbraLog.store.debug("Zimberg Store Manager: verify object: %s", request.getURI());
 
 		int statusCode;
 		String statusPhrase;
 
-		CloseableHttpResponse response = httpClient.execute(method);
+		CloseableHttpResponse response = executeRequest(request);
 		try
 		{
 			EntityUtils.consume(response.getEntity());
@@ -217,14 +265,14 @@ public abstract class HttpClientBackend
 	{
 		RequestBuilder builder = storeBuilder(location);
 		HttpEntity entity = new InputStreamEntity(is, size, ContentType.create(contentType));
-		HttpUriRequest method = builder.setEntity(entity).build();
+		HttpUriRequest request = builder.setEntity(entity).build();
 
-		ZimbraLog.store.debug("Zimberg Store Manager: store object: %s", method.getURI());
+		ZimbraLog.store.debug("Zimberg Store Manager: store object: %s", request.getURI());
 
 		int statusCode;
 		String statusPhrase;
 
-		CloseableHttpResponse response = httpClient.execute(method);
+		CloseableHttpResponse response = executeRequest(request);
 		try
 		{
 			EntityUtils.consume(response.getEntity());
@@ -263,6 +311,12 @@ public abstract class HttpClientBackend
 	private RequestBuilder configureRequest(RequestBuilder builder)
 	{
 		return builder;
+	}
+
+	private CloseableHttpResponse executeRequest(HttpUriRequest request)
+		throws IOException
+	{
+		return httpClient.execute(targetHost, request); 
 	}
 
 	/**

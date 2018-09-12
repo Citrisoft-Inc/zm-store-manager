@@ -36,6 +36,16 @@ public class AwsUtil
 	}
 
 	/**
+	 * Generate a timestamp string for the current instant
+	 * 
+	 * @return String with the formatted time
+	 */
+	public static String getTimestamp()
+	{   
+		return getTimestamp(Instant.now());
+	}
+
+	/**
 	 * Generate a timestamp string for a given instant
 	 * 
 	 * @param instant The time being formatted

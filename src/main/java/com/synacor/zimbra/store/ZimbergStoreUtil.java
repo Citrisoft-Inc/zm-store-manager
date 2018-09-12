@@ -18,7 +18,7 @@ public class ZimbergStoreUtil
 	
 	static
 	{
-		CliUtil.toolSetup();
+		CliUtil.toolSetup("DEBUG", "/tmp/zimberg.out", true);
 
 		try
 		{
