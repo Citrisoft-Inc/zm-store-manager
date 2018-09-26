@@ -308,12 +308,12 @@ public abstract class HttpClientBackend
 	 * Override to perform common configuration (e.g. adding an auth header)
 	 *
 	 */
-	private RequestBuilder configureRequest(RequestBuilder builder)
+	protected RequestBuilder configureRequest(RequestBuilder builder)
 	{
 		return builder;
 	}
 
-	private CloseableHttpResponse executeRequest(HttpUriRequest request)
+	protected CloseableHttpResponse executeRequest(HttpUriRequest request)
 		throws IOException
 	{
 		return httpClient.execute(targetHost, request); 

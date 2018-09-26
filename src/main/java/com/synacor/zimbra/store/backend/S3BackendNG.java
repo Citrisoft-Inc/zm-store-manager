@@ -34,16 +34,17 @@ public class S3BackendNG
 	{
 		super(props);
 
-		this.region = region;
-		this.bucket = bucket;
-		this.accessKey = accessKey;
-		this.secretKey = secretKey;
+		this.region = props.getProperty("aws_region");
+		this.bucket = props.getProperty("aws_bucket");
+		this.accessKey = props.getProperty("aws_access_key");
+		this.secretKey = props.getProperty("aws_secret_key");
+
 	}	
 
 	public URI generateURI(String location)
 	{
 
-		return baseURI.resolve("/"+bucket+"/location");
+		return baseURI.resolve("/"+bucket+"/"+location);
 	}
 
 	/**
@@ -84,11 +85,13 @@ public class S3BackendNG
 		return cr;
 	}
 
-	private CloseableHttpResponse executeRequest(HttpUriRequest request)
+	@Override
+	protected CloseableHttpResponse executeRequest(HttpUriRequest request)
 		throws IOException
 	{   
 		Instant instant = Instant.now();
 
+		request.addHeader("Host", request.getURI().getHost());
 		request.addHeader("X-Amz-Content-SHA256", "UNSIGNED-PAYLOAD");
 		request.addHeader("X-Amz-Date", AwsUtil.getTimestamp(instant));
 
