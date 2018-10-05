@@ -41,6 +41,9 @@ public class ZimbergStoreManager extends ExternalStoreManager
 	/** Holds the fallback store profile for persisting new blobs */
 	Profile fallbackProfile;
 
+	/** Holds the name of the current profile */
+	ThreadLocal<String> localProfileName = new ThreadLocal<>();
+
 	public static final ActivityTracker activityTracker = new ActivityTracker("store.csv");
 
 	/** Constructs an uninitialized StoreManager instance */
@@ -72,7 +75,11 @@ public class ZimbergStoreManager extends ExternalStoreManager
 	{
 		String[] parts = locator.split("@@", 2);
 
-		return (parts.length == 2) ? Profiles.get(parts[0]) : fallbackProfile;
+		Profile profile = (parts.length == 2) ? Profiles.get(parts[0]) : fallbackProfile;
+
+		localProfileName.set(profile.name);
+
+		return profile;
 	}
 
 	/**
@@ -111,7 +118,7 @@ public class ZimbergStoreManager extends ExternalStoreManager
 
 		long startTime = System.currentTimeMillis();
 		defaultProfile.backend.store(is, location, actualSize);
-		activityTracker.addStat("PUT", startTime);
+		activityTracker.addStat("PUT."+defaultProfile.name, startTime);
 
 		return locator;
 	}		
@@ -142,7 +149,7 @@ public class ZimbergStoreManager extends ExternalStoreManager
 	{
 		long startTime = System.currentTimeMillis();
 		getProfile(locator).backend.delete(getLocation(locator));
-		activityTracker.addStat("DELETE", startTime);
+		activityTracker.addStat("DELETE."+localProfileName.get(), startTime);
 
 		return true;
 	}
@@ -160,7 +167,7 @@ public class ZimbergStoreManager extends ExternalStoreManager
 	{
 		long startTime = System.currentTimeMillis();
 		boolean isValid = getProfile(locator).backend.verify(getLocation(locator));
-		activityTracker.addStat("VERIFY", startTime);
+		activityTracker.addStat("VERIFY."+localProfileName.get(), startTime);
 
 		return isValid;
 	}
@@ -219,7 +226,7 @@ public class ZimbergStoreManager extends ExternalStoreManager
 		else
 		{
 			cached = localCache.put(locator, is);
-			activityTracker.addStat("GET", startTime);
+			activityTracker.addStat("GET."+localProfileName.get(), startTime);
 			ExternalBlob blob = new ExternalBlob(cached.file, cached.file.length(), cached.digest);
 			blob.setLocator(locator);
 			blob.setMbox(mbox);

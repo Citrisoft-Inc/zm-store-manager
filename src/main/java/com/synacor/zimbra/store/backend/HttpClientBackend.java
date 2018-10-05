@@ -16,6 +16,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.HashMap;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -43,6 +44,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.pool.PoolStats;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
@@ -66,6 +68,9 @@ public abstract class HttpClientBackend
 {
 	/** The default http client object */
 	protected CloseableHttpClient httpClient;
+
+	/** The default http connection pool */
+	protected PoolingHttpClientConnectionManager connectionManager;
 
 	/** Properties */
 	public Properties props;
@@ -118,11 +123,11 @@ public abstract class HttpClientBackend
 			.register("http", plainFactory)
 			.build();
 
-		PoolingHttpClientConnectionManager manager = new PoolingHttpClientConnectionManager(registry);
-		manager.setMaxTotal(16);		   // FIXME: Make configurable
-		manager.setDefaultMaxPerRoute(16); // FIXME: Make configurable
+		connectionManager = new PoolingHttpClientConnectionManager(registry);
+		connectionManager.setMaxTotal(16);		   // FIXME: Make configurable
+		connectionManager.setDefaultMaxPerRoute(16); // FIXME: Make configurable
 
-		builder.setConnectionManager(manager);
+		builder.setConnectionManager(connectionManager);
 		builder.evictExpiredConnections();
 		builder.evictIdleConnections(30, TimeUnit.SECONDS);
 
@@ -381,6 +386,21 @@ public abstract class HttpClientBackend
 	{
 		URI uri = generateURI(location);
 		return configureRequest(RequestBuilder.head(uri));
+	}
+
+	public Object getStatus()
+	{   
+		HashMap<String,String> status = new HashMap<>();
+
+		//FIXME: Probably break out connection manager to avoid using deprecated method
+		PoolStats stats = connectionManager.getTotalStats();
+
+		status.put("available", Integer.toString(stats.getAvailable()));
+		status.put("leased",    Integer.toString(stats.getLeased()));
+		status.put("maximum",   Integer.toString(stats.getMax()));
+		status.put("pending",   Integer.toString(stats.getPending()));
+
+		return status;
 	}
 
 }

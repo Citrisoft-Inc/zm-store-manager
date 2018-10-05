@@ -133,4 +133,14 @@ public abstract class Backend
 	public abstract boolean verify(String location)
 		throws IOException;
 
+
+	/**
+	 * Return a POJO representing the status of the backend
+	 *
+	 * @return Object representing the status of the backend
+	 */
+	public Object getStatus()
+	{
+		return new Object();
+	}
 }
