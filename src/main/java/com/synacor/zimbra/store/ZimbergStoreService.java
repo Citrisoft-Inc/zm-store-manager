@@ -1,80 +1,27 @@
 package com.synacor.zimbra.store;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import org.dom4j.Namespace;
+import org.dom4j.QName;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.zimbra.common.service.ServiceException;
-import com.zimbra.common.util.ZimbraLog;
-import com.zimbra.cs.extension.ExtensionHttpHandler;
-import com.zimbra.cs.extension.ZimbraExtension;
-
-import org.apache.http.pool.PoolStats;
-
-import com.synacor.zimbra.store.profile.Profile;
-import com.synacor.zimbra.store.profile.Profiles;
+import com.zimbra.soap.DocumentDispatcher;
+import com.zimbra.soap.DocumentService;
 
 public class ZimbergStoreService
-	extends ExtensionHttpHandler
+	implements DocumentService
 {
 
-	public void init(ZimbraExtension ext)
-		throws ServiceException
+    static final Namespace NAMESPACE = Namespace.get("urn:zimbraAdmin");
+
+    static final QName MIGRATE_REQUEST  = new QName("ZimbergMigrateBlobsRequest",  NAMESPACE);
+    static final QName MIGRATE_RESPONSE = new QName("ZimbergMigrateBlobsResponse", NAMESPACE);
+
+	static final String E_ACCOUNT = "account";
+	static final String A_NAME    = "name";
+	static final String A_SOURCE  = "src";
+	static final String A_TARGET  = "dest";
+
+	public void registerHandlers(DocumentDispatcher dispatcher)
 	{
-		super.init(ext);
-		ZimbraLog.extensions.info("Initializing ZimbergStoreService.");
+		dispatcher.registerHandler(MIGRATE_REQUEST, new ZimbergMigrateBlobs());
 	}
-
-	public String getPath()
-	{
-		return "/store";
-	}
-
-	public void doGet(HttpServletRequest request, HttpServletResponse response)
-		throws IOException, ServletException
-	{
-
-		ZimbraLog.extensions.info("Handling a GET request in ZimbergStoreService.");
-
-		String[] path = request.getPathInfo().split("/");
-
-		if (path.length < 4)
-		{
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-			return;
-		}
-
-		String profileName = path[2];
-		String command = path[3];
-
-		Profile profile = Profiles.get(profileName);		
-
-		if (profile == null)
-		{
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
-			return;
-		}
-
-		if (command.equals("status"))
-		{
-			response.setContentType("text/plain");
-			PrintWriter out = response.getWriter();
-			out.println(profile.backend.getStatus().toString());
-		}
-		else
-		{
-			response.setContentType("text/plain");
-			PrintWriter out = response.getWriter();
-			out.println("RARRRR! BOOF! " + command + "!");
-			//response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-		}
-	}
-
-	public void destroy()
-	{
-	}
-
 }

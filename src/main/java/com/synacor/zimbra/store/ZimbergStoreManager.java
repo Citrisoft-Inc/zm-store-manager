@@ -26,7 +26,8 @@ import com.synacor.zimbra.store.profile.Profile;
 import com.synacor.zimbra.store.profile.Profiles;
 
 /** Flexible StoreManager implementation.  */
-public class ZimbergStoreManager extends ExternalStoreManager
+public class ZimbergStoreManager
+	extends ExternalStoreManager
 {
 	/** Holds the path to the profile directory */
 	private static KnownKey profilePath = new KnownKey("zimberg_store_profile_path", "${zimbra_home}/conf/storemanager.d");
@@ -58,11 +59,24 @@ public class ZimbergStoreManager extends ExternalStoreManager
 	 * @param locator The stored locator of a blob
 	 * @return String blob location
 	 */
-	public String getLocation(String locator)
+	public static String getLocation(String locator)
 	{
 		String[] parts = locator.split("@@", 2);
 
 		return (parts.length == 2) ? parts[1] : parts[0];
+	}
+
+	/**
+	 * Extracts profile name from locator string
+	 *
+	 * @param locator The stored locator of a blob
+	 * @return String profile name
+	 */
+	public static String getProfileName(String locator)
+	{
+		String[] parts = locator.split("@@", 2);
+
+		return (parts.length == 2) ? parts[0] : null;
 	}
 
 	/**
@@ -101,15 +115,15 @@ public class ZimbergStoreManager extends ExternalStoreManager
 	}
 
 	/**
-	* Persists the object to the default store backend
-	* 
-	* @param is The data stream for a mailbox blob
-	* @param actualSize The full size of a mailbox blob
-	* @param mbox The mailbox to recieve a mailbox blob
-	*
-	* @return String The locator key for the written message
-	*
-	*/
+	 * Persists the object to the default store backend
+	 * 
+	 * @param is The data stream for a mailbox blob
+	 * @param actualSize The full size of a mailbox blob
+	 * @param mbox The mailbox to recieve a mailbox blob
+	 *
+	 * @return String The locator key for the written message
+	 *
+	 */
 	public String writeStreamToStore(InputStream is, long actualSize, Mailbox mbox)
 		throws IOException, ServiceException
 	{
@@ -122,6 +136,30 @@ public class ZimbergStoreManager extends ExternalStoreManager
 
 		return locator;
 	}		
+
+	/**
+	 * Presists the object to a specific store backand
+	 *
+	 * @param is The data stream for a mailbox blob
+	 * @param actualSize The full size of a mailbox blob
+	 * @param mbox The mailbox to recieve a mailbox blob
+	 * @param profile The destination profile
+	 *
+	 * @return String The locator key for the written message
+	 *
+	 */
+	public String writeStreamToStore(InputStream is, long actualSize, Mailbox mbox, Profile profile)
+		throws IOException, ServiceException
+	{
+		String location = profile.locationFactory.generateLocation(mbox);
+		String locator = profile.name + "@@" + location;
+
+		long startTime = System.currentTimeMillis();
+		profile.backend.store(is, location, actualSize);
+		activityTracker.addStat("PUT."+profile.name, startTime);
+
+		return locator;
+	}
 
 	/**
 	 * Reads a message back from store backend

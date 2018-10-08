@@ -5,6 +5,7 @@ import com.zimbra.common.util.ZimbraLog;
 import com.zimbra.cs.extension.ExtensionDispatcherServlet;
 import com.zimbra.cs.extension.ExtensionException;
 import com.zimbra.cs.extension.ZimbraExtension;
+import com.zimbra.soap.SoapServlet;
 
 public class ZimbergStoreExtension
 	implements ZimbraExtension
@@ -18,15 +19,18 @@ public class ZimbergStoreExtension
 	/** Returns extension identifier */
 	public String getName()
 	{
-		return "ZimbergConnector";
+		return "ZimbergStoreManager";
 	}
 
 	/** Empty method to satisfy interface requirements */
 	public void init()
 		throws ExtensionException, ServiceException
 	{
-		ZimbraLog.extensions.info("Registering ZimbergStoreService.");
-		ExtensionDispatcherServlet.register(this, new ZimbergStoreService());
+		ZimbraLog.extensions.info("Registering ZimbergHttpHandler.");
+		ExtensionDispatcherServlet.register(this, new ZimbergHttpHandler());
+
+		ZimbraLog.extensions.info("Adding ZimbergStoreService.");
+		SoapServlet.addService("AdminServlet", new ZimbergStoreService());
 	}
 
 	/** Empty method to satisfy interface requirements */
