@@ -6,6 +6,7 @@ import java.util.Properties;
 import java.security.SecureRandom;
 
 import com.zimbra.cs.mailbox.Mailbox;
+import com.zimbra.cs.store.MailboxBlob;
 
 /** A strictly random key location generator */
 public class RandomLocationFactory
@@ -27,10 +28,11 @@ public class RandomLocationFactory
 	/**
 	 * Generates a key location consisting of a hex encoded 128-bit integer
 	 *
-	 * @param mbox The target mailbox
+	 * @param String accountId
+	 * @param String itemId
 	 * @return String A string representing the target location
 	 */
-	public String generateLocation(Mailbox mbox)
+	public String generateLocation(String accountId, int itemId)
 	{
 		return String.format("%032X", new BigInteger(128,rnd));
 	}

@@ -66,6 +66,7 @@ public class ZimbergMigrateBlobs
 		throws ServiceException
 	{
 		int moved = 0;
+		int failed = 0;
 		int processed= 0;
 
 		StoreManager sm = StoreManager.getInstance();
@@ -87,11 +88,11 @@ public class ZimbergMigrateBlobs
 			try
 			{
 				conn = DbPool.getConnection(mbox);
-				SpoolingCache<MailboxBlobInfo> blobs = DbMailItem.getAllBlobs(conn,mbox);
+				SpoolingCache<MailboxBlobInfo> blobs = DbMailItem.getAllBlobs(conn, mbox);
 
-				for (MailboxBlobInfo blob: blobs)
+				for (MailboxBlobInfo blobInfo: blobs)
 				{
-					String profileName = ZimbergStoreManager.getProfileName(blob.locator);
+					String profileName = ZimbergStoreManager.getProfileName(blobInfo.locator);
 
 					if (profileName.equals(source))
 					{
@@ -110,7 +111,7 @@ public class ZimbergMigrateBlobs
 			}
 		}
 
-		ZimbraLog.misc.info(String.format("BOOF: moved %d / %d", moved, processed));
+		ZimbraLog.misc.info(String.format("BOOF: moved: %d failed: %d / %d ", moved, failed, processed));
 
 		return moved;
 	}

@@ -4,6 +4,7 @@ import java.util.UUID;
 import java.util.Properties;
 
 import com.zimbra.cs.mailbox.Mailbox;
+import com.zimbra.cs.store.MailboxBlob;
 
 /** Generates locator strings optimized for Hitatchi Content Platform */
 public class HcpLocationFactory
@@ -23,16 +24,15 @@ public class HcpLocationFactory
 	 * Generates an HCP optimized locator prefixed with a djb2 hash
 	 * directory path to increase object dispersion.
 	 *
-	 * @param mbox The target mailbox
+	 * @param String accountId
+	 * @param String itemId
 	 * @return String A string representing the target location
 	 */
-	public String generateLocation(Mailbox mbox)
+	public String generateLocation(String accountId, int itemId)
 	{
-		UUID uuid = UUID.fromString(mbox.getAccountId());
-
 		String path = String.format("%S-%08X-%11X",
-			mbox.getAccountId(),
-			mbox.getLastItemId() + 1,
+			accountId,
+			itemId,
 			System.currentTimeMillis()
 			);
 

@@ -5,6 +5,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import com.zimbra.cs.mailbox.Mailbox;
+import com.zimbra.cs.store.MailboxBlob;
 
 /** A general purpose key location generator  */
 public class DefaultLocationFactory
@@ -27,17 +28,18 @@ public class DefaultLocationFactory
 	 * Generates a key location based on a compound of a random integer,
 	 * the account UUID and the target item item id as a hex string.
 	 * 
-	 * @param mbox The target mailbox
+	 * @param String accountId
+	 * @param String itemId
 	 * @return String A string representing the target location
 	 */
-	public String generateLocation(Mailbox mbox)
+	public String generateLocation(String accountId, int itemId)
 	{
-		UUID uuid = UUID.fromString(mbox.getAccountId());
+		UUID uuid = UUID.fromString(accountId);
 
 		return String.format("%08X%016X%016X%08X",
 			rnd.nextInt(),
 			uuid.getMostSignificantBits(),
 			uuid.getLeastSignificantBits(),
-			mbox.getLastItemId() + 1);
+			itemId);
 	}
 }

@@ -23,6 +23,7 @@ public class Profile
 
 	/** The storage backend used by this profile */
 	public Backend backend;
+
 	/** The location factory used by this profile */
 	public LocationFactory locationFactory;
 

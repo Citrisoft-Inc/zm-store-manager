@@ -7,6 +7,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import com.zimbra.cs.mailbox.Mailbox;
+import com.zimbra.cs.store.MailboxBlob;
 
 /** A simple location generator for filesystem paths */
 public class PathLocationFactory
@@ -39,12 +40,12 @@ public class PathLocationFactory
 	 * Generates an absolute location path comprised of a base prefix,
 	 * the account id, and the target item id of the mailbox blob.
 	 *
-	 * @param mbox The target mailbox
+	 * @param String accountId
+	 * @param String itemId
 	 * @return String A string representing the target location
 	 */
-	public String generateLocation(Mailbox mbox)
+	public String generateLocation(String accountId, int itemId)
 	{
-		return Paths.get(root, mbox.getAccountId(), String.valueOf(mbox.getLastItemId() + 1)).toString();
+		return Paths.get(root, accountId, String.valueOf(itemId)).toString();
 	}
-
 }
