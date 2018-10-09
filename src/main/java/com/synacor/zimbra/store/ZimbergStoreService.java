@@ -19,6 +19,7 @@ public class ZimbergStoreService
 	static final String A_NAME    = "name";
 	static final String A_SOURCE  = "src";
 	static final String A_TARGET  = "dest";
+	static final String A_DELETE  = "delete";
 
 	public void registerHandlers(DocumentDispatcher dispatcher)
 	{

@@ -41,6 +41,7 @@ public class ZimbergMigrateBlobs
 		String email  = accountElem.getAttribute(ZimbergStoreService.A_NAME);
 		String source = accountElem.getAttribute(ZimbergStoreService.A_SOURCE);
 		String target = accountElem.getAttribute(ZimbergStoreService.A_TARGET);
+		boolean delete = accountElem.getAttributeBool(ZimbergStoreService.A_DELETE);
 
 		Provisioning prov = Provisioning.getInstance();
 		Account account = prov.get(AccountBy.name, email);
@@ -55,19 +56,19 @@ public class ZimbergMigrateBlobs
 			throw ServiceException.FAILURE("Identical source and target: " + source, null);
 		}
 
-		ZimbraLog.misc.info("Got ZimbergMigrateBlobs request.");
+		ZimbraLog.store.info("Got ZimbergMigrateBlobs request.");
 
-		int moved = migrateBlobs(account, source, target);
+		int moved = migrateBlobs(account, source, target, delete);
 
 		return response;
 	}
 
-	public int migrateBlobs(Account account, String source, String target)
+	public int migrateBlobs(Account account, String source, String target, boolean delete)
 		throws ServiceException
 	{
 		int moved = 0;
 		int failed = 0;
-		int processed= 0;
+		int skipped = 0;
 
 		ZimbergStoreManager sm;
 
@@ -104,59 +105,61 @@ public class ZimbergMigrateBlobs
 				{
 					String profileName = sm.getProfileName(blobInfo.locator);
 
-					if (profileName.equals(source))
+					if (!profileName.equals(source))
 					{
+						skipped++;
+						continue;
+					}
+
+					try
+					{
+						MailboxBlob blob = sm.getMailboxBlob(mbox, blobInfo.itemId, blobInfo.revision,
+							blobInfo.locator, false);
+						String newLocation = targetProfile.locationFactory.generateLocation(blob);
+						String newLocator = targetProfile.name + "@@" + newLocation;
+
+						// Update the locator*
+						int rows = DbMailItem.updateLocatorAndDigest(conn, mbox, DbMailItem.getMailItemTableName(mbox), "id",
+							blobInfo.itemId, blobInfo.revision, newLocator, blobInfo.digest);
+						ZimbraLog.store.info("Updated " + rows + " rows");
+
 						try
 						{
-							MailboxBlob blob = sm.getMailboxBlob(mbox, blobInfo.itemId, blobInfo.revision,
-								blobInfo.locator, false);
-							String newLocation = targetProfile.locationFactory.generateLocation(blob);
-							String newLocator = targetProfile.name + "@@" + newLocation;
+							// Copy the blob
+							InputStream is = blob.getLocalBlob().getInputStream();
+							targetProfile.backend.store(is, newLocation, blob.getSize());
+							// Commit the transaction updating the locator
+							conn.commit();
 
-							// Update the locator*
-							int rows = DbMailItem.updateLocatorAndDigest(conn, mbox, DbMailItem.getMailItemTableName(mbox), "id",
-								blobInfo.itemId, blobInfo.revision, newLocator, blobInfo.digest);
-							ZimbraLog.misc.info("Updated " + rows + " rows");
-
-							try
-							{
-								// Copy the blob
-								InputStream is = blob.getLocalBlob().getInputStream();
-								targetProfile.backend.store(is, newLocation, blob.getSize());
-								// Commit the transaction updating the locator
-								conn.commit();
-
-							}
-							catch (IOException | ServiceException e)
-							{
-								ZimbraLog.misc.error("Failed to copy blob: " + e.toString());
-								conn.rollback();
-								continue;
-							}
-
-							// Delete the old blob
-
-							try
-							{
-								sm.deleteFromStore(blobInfo.locator, mbox);
-							}
-							catch (IOException e)
-							{
-								ZimbraLog.misc.error("Failed to delete old blob: " + blobInfo.locator + ": " + e.toString());
-							}
-							
-							ZimbraLog.misc.info(String.format("Copied %s to %s", blobInfo.locator, newLocator));
-							moved++;
 						}
-						catch (ServiceException e)
+						catch (IOException | ServiceException e)
 						{
-							ZimbraLog.misc.error("Failed to migrate blob: " + e.toString());
-							failed++;
+							ZimbraLog.store.error("Failed to copy blob: " + e.toString());
+							conn.rollback();
+							continue;
 						}
-					}
-					processed++;
-				}
 
+						// Delete the old blob
+
+						try
+						{
+							if (delete)
+								sm.deleteFromStore(blobInfo.locator, mbox);
+						}
+						catch (IOException e)
+						{
+							ZimbraLog.store.error("Failed to delete old blob: " + blobInfo.locator + ": " + e.toString());
+						}
+						
+						ZimbraLog.store.info(String.format("Copied %s to %s", blobInfo.locator, newLocator));
+						moved++;
+					}
+					catch (ServiceException e)
+					{
+						ZimbraLog.store.error("Failed to migrate blob: " + e.toString());
+						failed++;
+					}
+				}
 			}
 			finally
 			{
@@ -164,7 +167,7 @@ public class ZimbergMigrateBlobs
 			}
 		}
 
-		ZimbraLog.misc.info(String.format("BOOF: moved: %d failed: %d / %d ", moved, failed, processed));
+		ZimbraLog.store.info(String.format("skipped: %d moved: %d failed: %d", skipped, moved, failed));
 
 		return moved;
 	}
