@@ -1,5 +1,7 @@
 package com.synacor.zimbra.store;
 
+import java.io.InputStream;
+import java.io.IOException;
 import java.util.Map;
 
 import com.zimbra.common.account.Key.AccountBy;
@@ -17,8 +19,12 @@ import com.zimbra.cs.service.admin.AdminDocumentHandler;
 import com.zimbra.cs.service.admin.AdminServiceException;
 import com.zimbra.cs.store.MailboxBlob;
 import com.zimbra.cs.store.MailboxBlob.MailboxBlobInfo;
+import com.zimbra.cs.store.StoreManager;
 import com.zimbra.cs.util.SpoolingCache;
 import com.zimbra.soap.ZimbraSoapContext;
+
+import com.synacor.zimbra.store.profile.Profile;
+import com.synacor.zimbra.store.profile.Profiles;
 
 public class ZimbergMigrateBlobs
 	extends AdminDocumentHandler
@@ -62,9 +68,17 @@ public class ZimbergMigrateBlobs
 		int moved = 0;
 		int processed= 0;
 
+		StoreManager sm = StoreManager.getInstance();
 		MailboxManager mm = MailboxManager.getInstance();
 
 		Mailbox mbox = mm.getMailboxByAccount(account);
+
+		Profile targetProfile = Profiles.get(target);
+
+		if (targetProfile == null)
+		{
+			throw ServiceException.FAILURE("Invalid target profile: " + target, null);
+		}
 
 		if (account != null)
 		{
@@ -82,6 +96,7 @@ public class ZimbergMigrateBlobs
 					if (profileName.equals(source))
 					{
 						ZimbraLog.misc.info("BOOF: " + profileName);
+
 						moved++;
 					}
 

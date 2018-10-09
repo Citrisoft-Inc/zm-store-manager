@@ -11,8 +11,10 @@ import com.zimbra.common.util.Constants;
 import com.zimbra.common.util.FileCache;
 import com.zimbra.common.util.ZimbraLog;
 import com.zimbra.cs.mailbox.Mailbox;
+import com.zimbra.cs.mailbox.MailboxManager;
 import com.zimbra.cs.store.Blob;
 import com.zimbra.cs.store.MailboxBlob;
+import com.zimbra.cs.store.MailboxBlob.MailboxBlobInfo;
 import com.zimbra.cs.store.external.ExternalBlob;
 import com.zimbra.cs.store.external.ExternalStoreManager;
 import com.zimbra.cs.stats.ActivityTracker;
@@ -148,7 +150,7 @@ public class ZimbergStoreManager
 	 * @return String The locator key for the written message
 	 *
 	 */
-	public String writeStreamToStore(InputStream is, long actualSize, Mailbox mbox, Profile profile)
+	public static String writeStreamToStore(InputStream is, long actualSize, Mailbox mbox, Profile profile)
 		throws IOException, ServiceException
 	{
 		String location = profile.locationFactory.generateLocation(mbox);
@@ -226,6 +228,34 @@ public class ZimbergStoreManager
 		ZimbergMailboxBlob mblob = new ZimbergMailboxBlob(mbox, itemId, revision, locator);
 
 		return mblob.validateBlob() ? mblob : null;
+	}
+
+	/**
+	 * Convienence method to get mailbox blob from MailboxBlobInfo
+	 *
+	 * @param mbox The containing mailbox
+	 * @param blobInfo The MailboxBlobInfo object
+	 * @return the actual MailboxBlob object
+	 * @throws ServiceException is mailbox does not exist
+	 **/
+	public MailboxBlob getMailboxBlob(MailboxBlobInfo blobInfo)
+		throws ServiceException
+	{
+		Mailbox mbox = MailboxManager.getInstance().getMailboxById(blobInfo.mailboxId);
+		return getMailboxBlob(mbox, blobInfo);
+	}
+
+	/**
+	 * Convienence method to get mailbox blob from MailboxBlobInfo if mbox already resolved
+	 *
+	 * @param mbox The containing mailbox
+	 * @param blobInfo The MailboxBlobInfo object
+	 * @return the actual MailboxBlob object
+	 **/
+	public MailboxBlob getMailboxBlob(Mailbox mbox, MailboxBlobInfo blobInfo)
+		throws ServiceException
+	{
+		return getMailboxBlob(mbox, blobInfo.itemId, blobInfo.revision, blobInfo.locator, false);
 	}
 
 	/**
