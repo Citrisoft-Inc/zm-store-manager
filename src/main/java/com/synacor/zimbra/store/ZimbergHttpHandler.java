@@ -12,8 +12,6 @@ import com.zimbra.common.util.ZimbraLog;
 import com.zimbra.cs.extension.ExtensionHttpHandler;
 import com.zimbra.cs.extension.ZimbraExtension;
 
-import org.apache.http.pool.PoolStats;
-
 import com.synacor.zimbra.store.profile.Profile;
 import com.synacor.zimbra.store.profile.Profiles;
 
