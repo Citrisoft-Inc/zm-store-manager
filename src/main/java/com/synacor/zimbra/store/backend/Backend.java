@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 
 /** Base class for storage backends */
 public abstract class Backend
@@ -141,6 +142,6 @@ public abstract class Backend
 	 */
 	public Object getStatus()
 	{
-		return new Object();
+		return Collections.emptyMap();
 	}
 }

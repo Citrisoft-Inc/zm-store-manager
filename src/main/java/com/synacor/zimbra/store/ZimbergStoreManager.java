@@ -129,14 +129,7 @@ public class ZimbergStoreManager
 	public String writeStreamToStore(InputStream is, long actualSize, Mailbox mbox)
 		throws IOException, ServiceException
 	{
-		String location = defaultProfile.locationFactory.generateLocation(mbox);
-		String locator = defaultProfile.name + "@@" + location;
-
-		long startTime = System.currentTimeMillis();
-		defaultProfile.backend.store(is, location, actualSize);
-		activityTracker.addStat("PUT."+defaultProfile.name, startTime);
-
-		return locator;
+		return writeStreamToStore(is, actualSize, mbox, defaultProfile);
 	}		
 
 	/**
@@ -158,7 +151,7 @@ public class ZimbergStoreManager
 
 		long startTime = System.currentTimeMillis();
 		profile.backend.store(is, location, actualSize);
-		activityTracker.addStat("PUT."+profile.name, startTime);
+		activityTracker.addStat(profile.name+".put", startTime);
 
 		return locator;
 	}
@@ -189,7 +182,7 @@ public class ZimbergStoreManager
 	{
 		long startTime = System.currentTimeMillis();
 		getProfile(locator).backend.delete(getLocation(locator));
-		activityTracker.addStat("DELETE."+localProfileName.get(), startTime);
+		activityTracker.addStat(localProfileName.get()+".delete", startTime);
 
 		return true;
 	}
@@ -207,7 +200,7 @@ public class ZimbergStoreManager
 	{
 		long startTime = System.currentTimeMillis();
 		boolean isValid = getProfile(locator).backend.verify(getLocation(locator));
-		activityTracker.addStat("VERIFY."+localProfileName.get(), startTime);
+		activityTracker.addStat(localProfileName.get()+".verify", startTime);
 
 		return isValid;
 	}
@@ -294,7 +287,7 @@ public class ZimbergStoreManager
 		else
 		{
 			cached = localCache.put(locator, is);
-			activityTracker.addStat("GET."+localProfileName.get(), startTime);
+			activityTracker.addStat(localProfileName.get()+".get", startTime);
 			ExternalBlob blob = new ExternalBlob(cached.file, cached.file.length(), cached.digest);
 			blob.setLocator(locator);
 			blob.setMbox(mbox);

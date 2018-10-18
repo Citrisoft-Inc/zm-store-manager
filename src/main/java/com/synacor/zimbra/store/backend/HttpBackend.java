@@ -9,12 +9,14 @@ import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -225,5 +227,24 @@ public abstract class HttpBackend
 	 */
 	public abstract HttpMethod getVerify(String location)
 		throws IOException;
+
+	public Object getStatus()
+	{
+		HashMap<String,String> status = new HashMap<>();
+
+		try
+		{
+			MultiThreadedHttpConnectionManager cm = (MultiThreadedHttpConnectionManager) defaultClient.getHttpConnectionManager();
+
+			status.put("maximum", Integer.toString((cm.getParams().getDefaultMaxConnectionsPerHost())));
+			status.put("used", Integer.toString(cm.getConnectionsInPool()));
+		}
+		catch (Exception e)
+		{
+			ZimbraLog.store.warn("Could not get status from connection Manager.");
+		}
+
+		return status;
+	}
 
 }
