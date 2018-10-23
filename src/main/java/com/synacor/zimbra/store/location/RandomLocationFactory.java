@@ -28,8 +28,8 @@ public class RandomLocationFactory
 	/**
 	 * Generates a key location consisting of a hex encoded 128-bit integer
 	 *
-	 * @param String accountId
-	 * @param String itemId
+	 * @param accountId A string containing the id of the account object
+	 * @param itemId A string containing the id of the item object
 	 * @return String A string representing the target location
 	 */
 	public String generateLocation(String accountId, int itemId)

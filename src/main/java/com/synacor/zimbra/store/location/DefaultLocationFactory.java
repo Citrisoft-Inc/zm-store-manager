@@ -28,8 +28,9 @@ public class DefaultLocationFactory
 	 * Generates a key location based on a compound of a random integer,
 	 * the account UUID and the target item item id as a hex string.
 	 * 
-	 * @param String accountId
-	 * @param String itemId
+	 * @param accountId A string containing the id of the account object
+	 * @param itemId A string containing the id of the item object
+     *
 	 * @return String A string representing the target location
 	 */
 	public String generateLocation(String accountId, int itemId)

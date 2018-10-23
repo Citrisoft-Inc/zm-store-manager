@@ -309,14 +309,27 @@ public abstract class HttpClientBackend
 	}
 
 	/**
-	 *
 	 * Override to perform common configuration (e.g. adding an auth header)
 	 *
+	 * @param builder The (possibly already partially configured) builder).
+	 *
+	 * @return the (now possibly more configured) builder.
 	 */
 	protected RequestBuilder configureRequest(RequestBuilder builder)
 	{
 		return builder;
 	}
+
+	/**
+	 * Allows customized execution of a configured request; e.g. to implement
+	 * logic in choosing a target or to add a response interceptor
+	 *
+	 * @param request The configured request.
+	 *
+	 * @return the HTTP response
+	 *
+	 * @throws IOException on failed execution
+	 */
 
 	protected CloseableHttpResponse executeRequest(HttpUriRequest request)
 		throws IOException
@@ -325,9 +338,11 @@ public abstract class HttpClientBackend
 	}
 
 	/**
-	 *
 	 * Generate a URI from a locator
 	 *
+	 * @param locator A qualified locator
+	 *
+	 * @return a fully qualified URI
 	 */
 	public abstract URI generateURI(String locator);
 
@@ -336,6 +351,7 @@ public abstract class HttpClientBackend
 	 *
 	 * @param location The location of the target object
 	 * @return RequestBuilder An http method that will delete the blob
+	 *
 	 * @throws IOException if there is a failure constructing the request
 	 */
 	public RequestBuilder deleteBuilder(String location)

@@ -35,8 +35,9 @@ public abstract class LocationFactory
 	/**
 	 * Generate a unique location identifier for a MailboxBlob;
 	 *
-	 * @param String accountId
-	 * @param String itemId
+	 * @param accountId A string containing the id of the account object
+	 * @param itemId A string containing the id of the item object
+     *
 	 * @return String A string representing the target location 
 	 */
 	public abstract String generateLocation(String accountId, int itemId);

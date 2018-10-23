@@ -142,6 +142,9 @@ public class ZimbergStoreManager
 	 *
 	 * @return String The locator key for the written message
 	 *
+	 * @throws IOException if there is an error writing to the backing store
+	 * @throws ServiceException if there is any other error in processing the request
+	 *
 	 */
 	public static String writeStreamToStore(InputStream is, long actualSize, Mailbox mbox, Profile profile)
 		throws IOException, ServiceException
@@ -226,9 +229,10 @@ public class ZimbergStoreManager
 	/**
 	 * Convienence method to get mailbox blob from MailboxBlobInfo
 	 *
-	 * @param mbox The containing mailbox
 	 * @param blobInfo The MailboxBlobInfo object
+	 *
 	 * @return the actual MailboxBlob object
+	 *
 	 * @throws ServiceException is mailbox does not exist
 	 **/
 	public MailboxBlob getMailboxBlob(MailboxBlobInfo blobInfo)
@@ -243,7 +247,10 @@ public class ZimbergStoreManager
 	 *
 	 * @param mbox The containing mailbox
 	 * @param blobInfo The MailboxBlobInfo object
+	 *
 	 * @return the actual MailboxBlob object
+	 *
+	 * @throws ServiceException is mailbox does not exist
 	 **/
 	public MailboxBlob getMailboxBlob(Mailbox mbox, MailboxBlobInfo blobInfo)
 		throws ServiceException
@@ -260,6 +267,8 @@ public class ZimbergStoreManager
 	 * @param mbox The mailbox containing the blob
 	 * @param locator The stored locator for a mailbox blob object
 	 * @param fromCache Whether to retrieve cached object if available
+	 *
+	 * @throws IOException if there is an error reading the store from the backing store
 	 **/
 	@Override
 	protected Blob getLocalBlob(Mailbox mbox, String locator, boolean fromCache)

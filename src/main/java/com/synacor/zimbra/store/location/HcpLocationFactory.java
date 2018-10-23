@@ -24,8 +24,9 @@ public class HcpLocationFactory
 	 * Generates an HCP optimized locator prefixed with a djb2 hash
 	 * directory path to increase object dispersion.
 	 *
-	 * @param String accountId
-	 * @param String itemId
+	 * @param accountId A string containing the id of the account object
+	 * @param itemId A string containing the id of the item object
+	 *
 	 * @return String A string representing the target location
 	 */
 	public String generateLocation(String accountId, int itemId)

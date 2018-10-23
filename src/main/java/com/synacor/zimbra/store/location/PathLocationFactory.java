@@ -40,8 +40,9 @@ public class PathLocationFactory
 	 * Generates an absolute location path comprised of a base prefix,
 	 * the account id, and the target item id of the mailbox blob.
 	 *
-	 * @param String accountId
-	 * @param String itemId
+	 * @param accountId A string containing the id of the account object
+	 * @param itemId A string containing the id of the item object
+     *
 	 * @return String A string representing the target location
 	 */
 	public String generateLocation(String accountId, int itemId)
