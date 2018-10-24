@@ -1,0 +1,10 @@
+target/
+pkg/
+lib/
+.*.sw?
+.sw?
+*.class
+.idea/
+*.iml
+*.ipr
+.todo

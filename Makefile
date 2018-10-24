@@ -1,3 +1,11 @@
+VERSION=0.3.0
+
+INSTALL=/usr/bin/install
+TAR=/bin/gtar
+
+PREFIX=/opt/zimbra
+PKGDIR=target
+
 class:
 	buildr
 
@@ -10,4 +18,22 @@ jar:
 doc:
 	buildr doc
 
+tarball:
+	$(INSTALL) -m 755 -d $(PKGDIR)
+	$(TAR) czf $(PKGDIR)/zm-store-manager-$(VERSION).tar.gz \
+	--transform "s/^./zm-store-manager-${VERSION}/" \
+	--exclude-from=.gitignore \
+	--exclude-vcs \
+	--exclude=target \
+	--exclude=lib .
+
+rpm: jar
+	rpmbuild -bb zm-store-manager.spec --target noarch
+
 all: jar doc
+
+install:
+	$(INSTALL) -m 755 -d $(DESTDIR)/$(PREFIX)/conf/storemanager.d
+	$(INSTALL) -m 755 -d $(DESTDIR)/$(PREFIX)/lib/ext/zimberg
+	$(INSTALL) -m 644 -D target/zimberg_store_manager-${VERSION}.jar \
+	$(DESTDIR)/$(PREFIX)/lib/ext/zimberg/zimberg_store_manager-${VERSION}.jar
