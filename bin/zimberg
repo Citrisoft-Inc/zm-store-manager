@@ -1,0 +1,11 @@
+#!/bin/bash
+
+source /opt/zimbra/bin/zmshutil || exit 1
+zmsetvars -f
+
+exec ${zimbra_java_home}/bin/java -XX:ErrorFile=/opt/zimbra/log \
+     -client ${zimbra_zmjava_options} \
+     -Dzimbra.home=/opt/zimbra \
+     -Djava.library.path=/opt/zimbra/lib \
+     -Djava.ext.dirs=/opt/zimbra/common/lib/jvm/java/jre/lib/ext:/opt/zimbra/lib/ext/zimberg:/opt/zimbra/lib/jars \
+     com.synacor.zimbra.store.ZimbergStoreUtil "$@"
