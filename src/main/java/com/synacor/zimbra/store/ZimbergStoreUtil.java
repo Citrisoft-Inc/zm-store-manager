@@ -171,6 +171,29 @@ public class ZimbergStoreUtil
 		}
 	}
 
+	private static class GenerateCommand
+		extends Command
+	{
+		public void execute(String args[])
+		{
+			String profileName = args[0];
+			String accountId = args[1];
+			String itemIdStr = args[2];
+
+			Profile profile = getProfile(profileName);
+
+			try
+			{
+				int itemId = Integer.parseInt(itemIdStr, 10);
+				profile.locationFactory.generateLocation(accountId, itemId);
+			}
+			catch (NumberFormatException e)
+			{
+				System.err.printf("Invalid itemId: %s: %s\n", itemIdStr, e.getMessage());
+			}
+		}
+	}
+
 	private static Profile getProfile(String profileName)
 	{
 		Profile profile = Profiles.get(profileName);
@@ -193,6 +216,7 @@ public class ZimbergStoreUtil
 		main.add(new CopyCommand());
 		main.add(new VerifyCommand());
 		main.add(new DeleteCommand());
+		main.add(new GenerateCommand());
 		main.execute(args);
 	}
 
