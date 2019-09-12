@@ -84,12 +84,17 @@ public abstract class HttpClientBackend
 	/** Target host object */
 	protected HttpHost targetHost;
 
+	/** Max http connects */
+	int maxConn = 16;
+
 	public HttpClientBackend(Properties props)
 	{
 		this.props = props;
 
 		String baseURIStr = props.getProperty("base_uri");
 		String targetURIStr = props.getProperty("target_uri");
+		String maxConnStr = props.getProperty("max_conn");
+
 		try
 		{
 			this.baseURI = new URI(baseURIStr);
@@ -112,6 +117,18 @@ public abstract class HttpClientBackend
 			throw new IllegalArgumentException("Could not parse URI.", e);
 		}
 
+		if (maxConnStr != null)
+		{
+			try
+			{
+				maxConn = Integer.parseInt(maxConnStr, 10);
+			}
+			catch (NumberFormatException e)
+			{
+				ZimbraLog.store.error("Could not parse max_conn. Using default.");
+			}
+		}
+
 		HttpClientBuilder builder = HttpClients.custom();
 
 		ConnectionSocketFactory sslFactory = new SSLConnectionSocketFactory(
@@ -124,8 +141,8 @@ public abstract class HttpClientBackend
 			.build();
 
 		connectionManager = new PoolingHttpClientConnectionManager(registry);
-		connectionManager.setMaxTotal(16);		   // FIXME: Make configurable
-		connectionManager.setDefaultMaxPerRoute(16); // FIXME: Make configurable
+		connectionManager.setMaxTotal(maxConn);
+		connectionManager.setDefaultMaxPerRoute(maxConn);
 
 		builder.setConnectionManager(connectionManager);
 		builder.evictExpiredConnections();
