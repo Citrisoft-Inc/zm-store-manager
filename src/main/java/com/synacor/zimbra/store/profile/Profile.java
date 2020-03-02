@@ -53,7 +53,7 @@ public class Profile
 		String mimeType = Files.probeContentType(path);
 		InputStream inputStream = Files.newInputStream(path);
 
-		switch (mimeType)
+		switch (String.valueOf(mimeType))
 		{
 			case "application/xml":
 				props.loadFromXML(inputStream);

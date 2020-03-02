@@ -88,9 +88,9 @@ public class ScalityLocationFactory
 			int volId = (int)System.currentTimeMillis(); // Maybe make this configurable?
 			int appSpecific = rnd.nextInt();
 
-			System.out.printf("arc: %b\n", useArc);
-			System.out.printf("svc: %d\n", serviceId);
-			System.out.printf("cos: %d\n", objectCos);
+			//System.out.printf("arc: %b\n", useArc);
+			//System.out.printf("svc: %d\n", serviceId);
+			//System.out.printf("cos: %d\n", objectCos);
 
 			UKS key = new UKS(oId, volId, serviceId, appSpecific, objectCos);
 

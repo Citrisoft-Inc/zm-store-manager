@@ -2,7 +2,7 @@
 # Standard maven2 repository
 repositories.remote << 'http://repo1.maven.org/maven2'
 # Version number for this release
-VERSION_NUMBER = '0.4.1'
+VERSION_NUMBER = '0.4.2'
 
 desc 'Zimberg Storage Manager'
 define 'ZimbergStorageManager' do
