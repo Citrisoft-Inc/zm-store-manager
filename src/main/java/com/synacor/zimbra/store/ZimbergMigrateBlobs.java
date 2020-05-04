@@ -58,6 +58,8 @@ public class ZimbergMigrateBlobs
 
 		int moved = migrateBlobs(account, source, target, delete);
 
+		response.addAttribute("moved", moved);
+
 		return response;
 	}
 
@@ -95,7 +97,6 @@ public class ZimbergMigrateBlobs
 			DbConnection conn = null;
 
 			ZimbraLog.addAccountNameToContext(account.getName());
-			Thread.currentThread().setName("ZimbergMigrateBlobs");
 
 			try
 			{
@@ -115,8 +116,7 @@ public class ZimbergMigrateBlobs
 
 					try
 					{
-						MailboxBlob blob = sm.getMailboxBlob(mbox, blobInfo.itemId, blobInfo.revision,
-							blobInfo.locator, false);
+						MailboxBlob blob = sm.getMailboxBlob(mbox, blobInfo.itemId, blobInfo.revision, blobInfo.locator, false);
 						String newLocation = targetProfile.locationFactory.generateLocation(blob);
 						String newLocator = targetProfile.name + "@@" + newLocation;
 
@@ -138,6 +138,7 @@ public class ZimbergMigrateBlobs
 						{
 							ZimbraLog.store.error("Failed to copy blob: " + e.toString());
 							conn.rollback();
+							failed++;
 							continue;
 						}
 
