@@ -25,11 +25,11 @@ A flexible StoreManager implementation intended to support pluggable backends, k
 #### Create a configuration profile:
 
 ```
-# cat > /opt/zimbra/conf/storemanager.d/aqua.properties << !
+# cat > /opt/zimbra/conf/storemanager.d/aws.properties << !
 > name=aws
-> backend_class=com.synacor.zimbra.store.backend.S3Backend
+> backend_class=com.synacor.zimbra.store.backend.S3BackendNG
 > location_factory_class=com.synacor.zimbra.store.location.DefaultLocationFactory
-> aws_endpoint=s3.us-east-2.amazonaws.com
+> base_uri=https://s3.us-east-2.amazonaws.com
 > aws_region=us-east-2
 > aws_bucket=myZimbraBucket
 > aws_access_key=FNORDFNORDFNORDFNORD
