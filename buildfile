@@ -6,14 +6,14 @@ VERSION_NUMBER = '0.4.2'
 
 desc 'Zimberg Storage Manager'
 define 'ZimbergStorageManager' do
-        project.group = 'com.synacor.zimbra.store'
+        project.group = 'com.citrisoft.zimbra.store'
         project.version = VERSION_NUMBER
         compile.with Dir[_("/opt/zimbra/lib/jars/*.jar")]
         compile.with Dir[_("lib/*.jar")]
 		compile.options.lint = 'all'
 		package(:jar, :id => 'zimberg_store_manager').with(
 			:manifest => {
-			'Zimbra-Extension-Class' => 'com.synacor.zimbra.store.ZimbergStoreExtension'
+			'Zimbra-Extension-Class' => 'com.citrisoft.zimbra.store.ZimbergStoreExtension'
 		})
 
 end

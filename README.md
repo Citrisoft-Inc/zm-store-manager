@@ -27,8 +27,8 @@ A flexible StoreManager implementation intended to support pluggable backends, k
 ```
 # cat > /opt/zimbra/conf/storemanager.d/aqua.properties << !
 > name=aws
-> backend_class=com.synacor.zimbra.store.backend.S3Backend
-> location_factory_class=com.synacor.zimbra.store.location.DefaultLocationFactory
+> backend_class=com.citrisoft.zimbra.store.backend.S3Backend
+> location_factory_class=com.citrisoft.zimbra.store.location.DefaultLocationFactory
 > aws_endpoint=s3.us-east-2.amazonaws.com
 > aws_region=us-east-2
 > aws_bucket=myZimbraBucket
@@ -41,7 +41,7 @@ A flexible StoreManager implementation intended to support pluggable backends, k
 
 ```
 # zmlocalconfig -e \
-  zimbra_class_store=com.synacor.zimbra.store.ZimbergStoreManager \
+  zimbra_class_store=com.citrisoft.zimbra.store.ZimbergStoreManager \
   zimberg_store_default_profile=aws
 ```
 
@@ -50,7 +50,7 @@ A flexible StoreManager implementation intended to support pluggable backends, k
 The jar file includes some basic tools for testing the validity of a given profile, allowing you to directly store, get, verify and delete blobs by their locator:
 
 ```
-# alias zimberg="java -cp /opt/zimbra/lib/jars/*:/opt/zimbra/lib/ext/zimberg/* com.synacor.zimbra.store.ZimbergStoreUtil"
+# alias zimberg="java -cp /opt/zimbra/lib/jars/*:/opt/zimbra/lib/ext/zimberg/* com.citrisoft.zimbra.store.ZimbergStoreUtil"
 # cat > /tmp/fnord <<< fnord
 # zimberg store aws /tmp/fnord fnord
 # zimberg verify aws fnord
@@ -96,11 +96,11 @@ A class which generates a new key or path name for new blobs.
 
 There are several storage backends currently bundled with the connector.
 
-### com.synacor.zimbra.store.backend.FileBackend
+### com.citrisoft.zimbra.store.backend.FileBackend
 
 An implementation that interfaces with the local filesystem.
 
-### com.synacor.zimbra.store.backend.HcpBackend
+### com.citrisoft.zimbra.store.backend.HcpBackend
 
 An implementation that interfaces with the Hitatchi Content Platform.
 
@@ -120,7 +120,7 @@ A valid username for the HCP namespace.
 
 A valid password for the HCP namespace.
 
-### com.synacor.zimbra.store.backend.S3Backend
+### com.citrisoft.zimbra.store.backend.S3Backend
 
 An implementation that interfaces with the Amazon S3 service and compatible implementations.
 
@@ -148,19 +148,19 @@ The secret key used in generating the signing key for requests.
 
 Generation of location strings is decoupled from the backend storage in order to facilitate alternate schemes for the same protocol.  For example, Amazon recommends a key naming scheme which is inefficient on compatible S3 implementations like Hitatchi's HS3 API.
 
-### com.synacor.zimbra.store.location.DefaultLocationFactory
+### com.citrisoft.zimbra.store.location.DefaultLocationFactory
 
 A general purpose implementation that constructs a key from a random integer, the account ID, and the item id of the new blob.
 
-### com.synacor.zimbra.store.location.PathLocationFactory
+### com.citrisoft.zimbra.store.location.PathLocationFactory
 
 A reference implementation for use with the FileBackend that builds a path from a prefix, the account id, and the item id of the new blob.
 
-### com.synacor.zimbra.store.location.RandomLocationFactory
+### com.citrisoft.zimbra.store.location.RandomLocationFactory
 
 A reference implementation for use with object stores that simply returns a hex encoded 128-bit random integer.
 
-### com.synacor.zimbra.store.location.HcpLocationFactory
+### com.citrisoft.zimbra.store.location.HcpLocationFactory
 
 An implementation that constructs keys optimized for the Hitatchi Content Platform.  A base key is constructed using the account id, item id and current timestamp, and then prefixed with a two level path based on a djb2 hash of the base key.  This ensures that mailbox objects are evenly distributed among the content node databases.
 

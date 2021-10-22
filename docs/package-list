@@ -1,8 +1,8 @@
-com.synacor.util
-com.synacor.util.aws
-com.synacor.util.cli
-com.synacor.zimbra.store
-com.synacor.zimbra.store.backend
-com.synacor.zimbra.store.crypt
-com.synacor.zimbra.store.location
-com.synacor.zimbra.store.profile
+com.citrisoft.util
+com.citrisoft.util.aws
+com.citrisoft.util.cli
+com.citrisoft.zimbra.store
+com.citrisoft.zimbra.store.backend
+com.citrisoft.zimbra.store.crypt
+com.citrisoft.zimbra.store.location
+com.citrisoft.zimbra.store.profile

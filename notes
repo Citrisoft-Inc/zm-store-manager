@@ -46,10 +46,10 @@ DISCARD
 
 		* store config in prop files by default; e.g.
 
-		locator_class:com.synacor.zimbra.store.locator.Default
-		store_class:com.synacor.zimbra.store.backend.S3
-		compress_class:com.synacor.zimbra.store.crypt.LZ4
-		encryption_class:com.synacor.zimbra.store.crypt.AES
+		locator_class:com.citrisoft.zimbra.store.locator.Default
+		store_class:com.citrisoft.zimbra.store.backend.S3
+		compress_class:com.citrisoft.zimbra.store.crypt.LZ4
+		encryption_class:com.citrisoft.zimbra.store.crypt.AES
 		encryption_aes_keystore:zimberg.jck
 		encryption_aes_alias:default
 		encryption_aes_password:i0wnj00
