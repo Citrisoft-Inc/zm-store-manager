@@ -7,16 +7,16 @@ PREFIX=/opt/zimbra
 PKGDIR=target
 
 class:
-	buildr
+	./gradlew
 
 clean:
-	buildr clean
+	./gradlew clean
 
 jar:
-	buildr package
+	./gradlew jar
 
 doc:
-	buildr doc
+	./gradlew javadoc
 
 tarball:
 	$(INSTALL) -m 755 -d $(PKGDIR)
