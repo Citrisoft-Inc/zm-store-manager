@@ -1,7 +1,6 @@
 package com.citrisoft.zimbra.store.backend;
 
 import java.io.IOException;
-import java.lang.IllegalArgumentException;
 import java.net.URI;
 import java.security.InvalidKeyException;
 import java.time.Instant;
@@ -21,15 +20,15 @@ import com.citrisoft.util.aws.Signature;
 
 import com.zimbra.common.util.ZimbraLog;
 
-public class S3BackendNG
-	extends HttpClientBackend
+public class S3Backend
+	extends HttpBackend
 {
 	public String region;
 	public String bucket;
 	public String accessKey;
 	public String secretKey;
 
-	public S3BackendNG(Properties props)
+	public S3Backend(Properties props)
 	{
 		super(props);
 

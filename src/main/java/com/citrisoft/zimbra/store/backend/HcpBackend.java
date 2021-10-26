@@ -1,6 +1,5 @@
 package com.citrisoft.zimbra.store.backend;
 
-import java.io.IOException;
 import java.lang.IllegalArgumentException;
 import java.net.URI;
 import java.util.Properties;
@@ -16,10 +15,10 @@ import com.zimbra.common.util.ByteUtil;
 import com.zimbra.common.util.ZimbraLog;
 
 /** Backend adaptor for the Hitatchi Content Platform */
-public class HcpBackendNG
-	extends HttpClientBackend
+public class HcpBackend
+	extends HttpBackend
 {
-	public HcpBackendNG(Properties props)
+	public HcpBackend(Properties props)
 	{
 		super(props);
 	}

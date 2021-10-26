@@ -35,8 +35,6 @@ all: jar doc
 install:
 	$(INSTALL) -m 755 -d $(DESTDIR)/$(PREFIX)/conf/storemanager.d
 	$(INSTALL) -m 755 -d $(DESTDIR)/$(PREFIX)/lib/ext/zimberg
-	$(INSTALL) -m 644 -D target/zimberg_store_manager-${VERSION}.jar \
+	$(INSTALL) -m 644 -D build/libs/zimberg_store_manager.jar \
 	$(DESTDIR)/$(PREFIX)/lib/ext/zimberg/zimberg_store_manager-${VERSION}.jar
-	$(INSTALL) -m 644 -D lib/scality-commons-4.0.0-1.jar \
-	$(DESTDIR)/$(PREFIX)/lib/ext/zimberg/scality-commons-4.0.0-1.jar
 	$(INSTALL) -m 755 -D bin/zimberg $(DESTDIR)/$(PREFIX)/bin/zimberg

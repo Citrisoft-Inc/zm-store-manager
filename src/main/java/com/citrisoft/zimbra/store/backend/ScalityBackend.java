@@ -1,12 +1,10 @@
 package com.citrisoft.zimbra.store.backend;
 
-import java.io.IOException;
-import java.lang.IllegalArgumentException;
 import java.net.URI;
 import java.util.Properties;
 
 public class ScalityBackend
-	extends HttpClientBackend
+	extends HttpBackend
 {
 
 	private String prefix;

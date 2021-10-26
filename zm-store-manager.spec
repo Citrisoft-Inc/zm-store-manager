@@ -3,8 +3,8 @@
 Name:    zm-store-manager
 Summary: Plugin-based Data Store for Zimbra
 BuildArch: noarch
-Version: 0.4.2
-Release: 2
+Version: 0.5.0
+Release: 1
 License: GPLv3
 
 %description
@@ -16,10 +16,13 @@ make install DESTDIR=${RPM_BUILD_ROOT}
 %files
 %dir /opt/zimbra/conf/storemanager.d
 /opt/zimbra/lib/ext/zimberg/zimberg_store_manager-0.4.2.jar
-/opt/zimbra/lib/ext/zimberg/scality-commons-4.0.0-1.jar
 /opt/zimbra/bin/zimberg
 
 %changelog
+* Tue Oct 26 2021  Matthew Berg <mberg@citrisoft.com> -  0.5.0-1
+- New namespace
+- Removing deprecated backends
+- Splitting out Scality support to separate package
 * Mon Mar 02 2020  Matthew Berg <mberg@synacor.com> - 0.4.2-2
 - Remove debug statement that are adding log noise
 * Mon Feb 24 2020  Matthew Berg <mberg@synacor.com> - 0.4.2-1

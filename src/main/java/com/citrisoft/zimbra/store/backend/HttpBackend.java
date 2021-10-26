@@ -63,7 +63,7 @@ import com.zimbra.common.util.ZimbraLog;
   * configureRequest(RequestBuilder builder)
   * executeRequest(HttpUriRequest request)
   **/
-public abstract class HttpClientBackend
+public abstract class HttpBackend
 	extends Backend
 {
 	/** The default http client object */
@@ -87,7 +87,7 @@ public abstract class HttpClientBackend
 	/** Max http connects */
 	int maxConn = 16;
 
-	public HttpClientBackend(Properties props)
+	public HttpBackend(Properties props)
 	{
 		this.props = props;
 
