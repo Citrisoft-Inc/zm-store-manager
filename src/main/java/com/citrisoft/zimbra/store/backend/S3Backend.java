@@ -32,10 +32,10 @@ public class S3Backend
 	{
 		super(props);
 
-		this.region = props.getProperty("aws_region");
-		this.bucket = props.getProperty("aws_bucket");
-		this.accessKey = props.getProperty("aws_access_key");
-		this.secretKey = props.getProperty("aws_secret_key");
+		this.region = props.getProperty("s3_region");
+		this.bucket = props.getProperty("s3_bucket");
+		this.accessKey = props.getProperty("s3_access_key");
+		this.secretKey = props.getProperty("s3_secret_key");
 
 	}	
 
