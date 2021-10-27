@@ -1,6 +1,4 @@
 build/
-target/
-pkg/
 lib/
 .*.sw?
 .sw?
@@ -10,6 +8,3 @@ lib/
 *.ipr
 .todo
 .gradle
-
-# Ignore Gradle build output directory
-build

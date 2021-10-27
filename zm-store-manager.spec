@@ -15,7 +15,7 @@ make install DESTDIR=${RPM_BUILD_ROOT}
 
 %files
 %dir /opt/zimbra/conf/storemanager.d
-/opt/zimbra/lib/ext/zimberg/zimberg_store_manager-0.4.2.jar
+/opt/zimbra/lib/ext/zimberg/zm-store-manager-0.5.0.jar
 /opt/zimbra/bin/zimberg
 
 %changelog

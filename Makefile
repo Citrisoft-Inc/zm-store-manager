@@ -1,4 +1,4 @@
-VERSION=0.4.2
+VERSION=0.5.0
 
 INSTALL=/usr/bin/install
 TAR=/bin/gtar
@@ -35,6 +35,6 @@ all: jar doc
 install:
 	$(INSTALL) -m 755 -d $(DESTDIR)/$(PREFIX)/conf/storemanager.d
 	$(INSTALL) -m 755 -d $(DESTDIR)/$(PREFIX)/lib/ext/zimberg
-	$(INSTALL) -m 644 -D build/libs/zimberg_store_manager.jar \
-	$(DESTDIR)/$(PREFIX)/lib/ext/zimberg/zimberg_store_manager-${VERSION}.jar
+	$(INSTALL) -m 644 -D build/libs/zm-store-manager.jar \
+	$(DESTDIR)/$(PREFIX)/lib/ext/zimberg/zm-store-manager-${VERSION}.jar
 	$(INSTALL) -m 755 -D bin/zimberg $(DESTDIR)/$(PREFIX)/bin/zimberg
