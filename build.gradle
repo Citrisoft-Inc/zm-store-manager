@@ -16,6 +16,14 @@ repositories {
     jcenter()
 }
 
+jar {
+    manifest {
+        attributes (
+            'Zimbra-Extension-Class': 'com.citrisoft.zimbra.store.ZimbergStoreExtension'
+	)
+    }
+}
+
 dependencies {
     // Use JUnit test framework.
     //testImplementation 'junit:junit:4.13'
