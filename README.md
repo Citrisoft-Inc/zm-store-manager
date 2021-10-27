@@ -25,7 +25,7 @@ A flexible StoreManager implementation intended to support pluggable backends, k
 #### Create a configuration profile:
 
 ```
-# cat > /opt/zimbra/conf/storemanager.d/aqua.properties << !
+# cat > /opt/zimbra/conf/storemanager.d/aws.properties << !
 > name=aws
 > backend_class=com.citrisoft.zimbra.store.backend.S3Backend
 > location_factory_class=com.citrisoft.zimbra.store.location.DefaultLocationFactory
