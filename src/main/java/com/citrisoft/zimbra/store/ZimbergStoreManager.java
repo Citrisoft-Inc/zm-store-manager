@@ -142,13 +142,15 @@ public class ZimbergStoreManager
 	 * @throws ServiceException if there is any other error in processing the request
 	 *
 	 */
-	public static String writeStreamToStore(InputStream is, long actualSize, Mailbox mbox, Profile profile)
+	public static String writeStreamToStore(InputStream rawInputStream, long actualSize, Mailbox mbox, Profile profile)
 		throws IOException, ServiceException
 	{
 		String location = profile.locationFactory.generateLocation(mbox);
 		String locator = profile.name + "@@" + location;
 
 		long startTime = System.currentTimeMillis();
+
+		InputStream is = profile.compressBlobs() ? profile.compressor.getInputStream(rawInputStream, actualSize) : rawInputStream;
 		profile.backend.store(is, location, actualSize);
 		activityTracker.addStat(profile.name+".put", startTime);
 
@@ -167,7 +169,9 @@ public class ZimbergStoreManager
 	public InputStream readStreamFromStore(String locator, Mailbox mbox)
 		throws IOException
 	{
-		return getProfile(locator).backend.get(getLocation(locator));
+		Profile profile = getProfile(locator);
+		InputStream rawInputStream = profile.backend.get(getLocation(locator));
+		return profile.compressBlobs() ? profile.compressor.getInputStream(rawInputStream) : rawInputStream;
 	}
 
 	/**

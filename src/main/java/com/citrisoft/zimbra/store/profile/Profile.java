@@ -74,7 +74,16 @@ public class Profile
 
 		backend = ClassUtil.getInstance(backendClassName, Backend.class, props);
 		compressor = ClassUtil.getInstance(compressorClassName, Compressor.class, props);
-		locationFactory = ClassUtil.getInstance(locationFactoryClassName, LocationFactory.class, props);
+
+		if (compressorClassName != null)
+		{
+			locationFactory = ClassUtil.getInstance(locationFactoryClassName, LocationFactory.class, props);
+		}
+	}
+
+	public boolean compressBlobs()
+	{
+		return compressor != null;
 	}
 
 }
