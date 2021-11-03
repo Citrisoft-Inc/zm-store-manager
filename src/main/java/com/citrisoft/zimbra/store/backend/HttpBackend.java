@@ -286,7 +286,20 @@ public abstract class HttpBackend
 		throws IOException
 	{
 		RequestBuilder builder = storeBuilder(location);
-		HttpEntity entity = new InputStreamEntity(is, size, ContentType.create(contentType));
+
+
+		HttpEntity entity;
+
+		if (size == -1)
+		{
+			entity = new InputStreamEntity(is, ContentType.create(contentType));
+		}
+		else
+		{
+			entity = new InputStreamEntity(is, size, ContentType.create(contentType));
+		}
+
+
 		HttpUriRequest request = builder.setEntity(entity).build();
 
 		ZimbraLog.store.debug("Zimberg Store Manager: store object: %s", request.getURI());

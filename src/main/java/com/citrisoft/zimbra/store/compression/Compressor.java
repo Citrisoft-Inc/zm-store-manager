@@ -1,8 +1,8 @@
 package com.citrisoft.zimbra.store.compression;
 
 import java.io.InputStream;
-import java.io.IOException;
 import java.io.OutputStream;
+import java.io.IOException;
 
 public abstract class Compressor
 {
@@ -12,14 +12,14 @@ public abstract class Compressor
 		return getInputStream(is, -1);
 	}
 
-	public OutputStream getOutputStream(OutputStream is)
+	public OutputStream getOutputStream(OutputStream os)
 		throws IOException
 	{
-		return getOutputStream(is, -1);
+		return getOutputStream(os, -1);
 	}
 
 	public abstract InputStream getInputStream(InputStream is, long actualSize)
 		throws IOException;
-	public abstract OutputStream getOutputStream(OutputStream os, long actualSize)
+	public abstract OutputStream getOutputStream(OutputStream is, long actualSize)
 		throws IOException;
 }

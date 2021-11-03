@@ -69,8 +69,8 @@ public abstract class Backend
 
 	/**
 	 * Copy a stored blob to another location
-     *
-     * @param srcLocation The original location
+	 *
+	 * @param srcLocation The original location
 	 * @param dstLocation The new location
 	 * @throws IOException on any error
 	 *
@@ -102,7 +102,7 @@ public abstract class Backend
 		throws IOException;
 
 	/**
-	 * Store an input stream to a target location
+	 * Store an filesystem object to a target location
 	 *
 	 * @param path Filesystem path to store
 	 * @param location Target location for the blob

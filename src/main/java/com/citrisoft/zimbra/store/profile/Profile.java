@@ -13,6 +13,8 @@ import com.citrisoft.zimbra.store.backend.Backend;
 import com.citrisoft.zimbra.store.compression.Compressor;
 import com.citrisoft.zimbra.store.location.LocationFactory;
 
+import com.zimbra.common.util.ZimbraLog;
+
 /** A representation of a complete storage configuration */
 public class Profile
 {
@@ -72,12 +74,17 @@ public class Profile
 		String locationFactoryClassName = props.getProperty("location_factory_class");
 		String compressorClassName = props.getProperty("compressor_class");
 
-		backend = ClassUtil.getInstance(backendClassName, Backend.class, props);
-		compressor = ClassUtil.getInstance(compressorClassName, Compressor.class, props);
 
-		if (compressorClassName != null)
+		backend = ClassUtil.getInstance(backendClassName, Backend.class, props);
+		locationFactory = ClassUtil.getInstance(locationFactoryClassName, LocationFactory.class, props);
+
+		ZimbraLog.store.debug(String.format("Setting backend for %s to %s.\n", name, backendClassName));
+		ZimbraLog.store.debug(String.format("Setting locationFactory for %s to %s.\n", name, locationFactoryClassName));
+
+		if (compressorClassName != null && !compressorClassName.isBlank())
 		{
-			locationFactory = ClassUtil.getInstance(locationFactoryClassName, LocationFactory.class, props);
+			compressor = ClassUtil.getInstance(compressorClassName, Compressor.class, props);
+			ZimbraLog.store.debug(String.format("Setting compressor for %s to %s.", name, compressorClassName));
 		}
 	}
 

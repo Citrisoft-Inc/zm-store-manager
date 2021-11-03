@@ -2,6 +2,10 @@ package com.citrisoft.zimbra.store;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import com.zimbra.common.localconfig.KnownKey;
@@ -9,6 +13,7 @@ import com.zimbra.common.localconfig.LC;
 import com.zimbra.common.service.ServiceException;
 import com.zimbra.common.util.Constants;
 import com.zimbra.common.util.FileCache;
+import com.zimbra.common.util.FileUtil;
 import com.zimbra.common.util.ZimbraLog;
 import com.zimbra.cs.mailbox.Mailbox;
 import com.zimbra.cs.mailbox.MailboxManager;
@@ -45,9 +50,20 @@ public class ZimbergStoreManager
 
 	public static final ActivityTracker activityTracker = new ActivityTracker("store.csv");
 
+	private static Path stagingDir = Paths.get(LC.zimbra_tmp_directory.value() + "/staging");
+
 	/** Constructs an uninitialized StoreManager instance */
 	public ZimbergStoreManager()
 	{
+		try
+		{
+			FileUtil.deleteDir(stagingDir.toFile());
+			FileUtil.ensureDirExists(stagingDir.toFile());
+		}
+		catch (IOException e)
+		{
+			throw new InstantiationError("Could not clear staging directory");
+		}
 		StatsDumper.schedule(activityTracker, Constants.MILLIS_PER_MINUTE);
 	}
 
@@ -150,9 +166,55 @@ public class ZimbergStoreManager
 
 		long startTime = System.currentTimeMillis();
 
-		InputStream is = profile.compressBlobs() ? profile.compressor.getInputStream(rawInputStream, actualSize) : rawInputStream;
-		profile.backend.store(is, location, actualSize);
-		activityTracker.addStat(profile.name+".put", startTime);
+		long size;
+		InputStream inputStream;
+
+		Path stagingFile = null;
+
+		try
+		{
+			if (profile.compressBlobs())
+			{
+				stagingFile = Files.createTempFile(stagingDir, "raw.", ".txt");
+	
+				OutputStream fileOutputStream = Files.newOutputStream(stagingFile);
+				OutputStream compressedOutputStream = profile.compressor.getOutputStream(fileOutputStream);
+	
+				int readBytes = 0;
+				byte[] buffer = new byte[4096];
+				while ((readBytes = rawInputStream.read(buffer)) != -1) {
+					compressedOutputStream.write(buffer, 0, readBytes);
+				}
+	
+				compressedOutputStream.close();
+	
+				inputStream = Files.newInputStream(stagingFile);
+				size = Files.size(stagingFile);
+			}
+			else
+			{
+				inputStream = rawInputStream;
+				size = actualSize;
+			}
+	
+			profile.backend.store(inputStream, location, size);
+			activityTracker.addStat(profile.name+".put", startTime);
+		}
+		finally
+		{
+			if (stagingFile != null)
+			{
+				try
+				{
+					Files.deleteIfExists(stagingFile);
+				}
+				catch (IOException e)
+				{
+					System.err.println("Unable to delete staging file: " + e.getMessage());
+				System.exit(1);
+				}
+			}
+		}
 
 		return locator;
 	}
