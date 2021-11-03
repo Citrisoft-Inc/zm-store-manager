@@ -29,11 +29,11 @@ A flexible StoreManager implementation intended to support pluggable backends, k
 > name=aws
 > backend_class=com.citrisoft.zimbra.store.backend.S3Backend
 > location_factory_class=com.citrisoft.zimbra.store.location.DefaultLocationFactory
-> aws_endpoint=s3.us-east-2.amazonaws.com
-> aws_region=us-east-2
-> aws_bucket=myZimbraBucket
-> aws_access_key=FNORDFNORDFNORDFNORD
-> aws_secret_key=FNORDFNORDFNORDFNORDFNORDFNORDFNORDFNORD
+> s3_endpoint=s3.us-east-2.amazonaws.com
+> s3_region=us-east-2
+> s3_bucket=myZimbraBucket
+> s3_access_key=FNORDFNORDFNORDFNORD
+> s3_secret_key=FNORDFNORDFNORDFNORDFNORDFNORDFNORDFNORD
 > !
 ```
 
@@ -124,23 +124,23 @@ A valid password for the HCP namespace.
 
 An implementation that interfaces with the Amazon S3 service and compatible implementations.
 
-#### aws_endpoint
+#### s3_endpoint
 
 The endpoint hostname for connecting to the S3 interface.
 
-#### aws_region
+#### s3_region
 
 The region name to be used in the request.
 
-#### aws_bucket
+#### s3_bucket
 
 The bucket name to be used in the request.
 
-#### aws_access_key
+#### s3_access_key
 
 The access key used in generating the request signature.
 
-#### aws_secret_key
+#### s3_secret_key
 
 The secret key used in generating the signing key for requests.
 

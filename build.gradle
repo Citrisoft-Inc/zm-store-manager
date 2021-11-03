@@ -24,6 +24,14 @@ jar {
     }
 }
 
+allprojects {
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+        }
+    }
+}
+
 dependencies {
     // Use JUnit test framework.
     //testImplementation 'junit:junit:4.13'

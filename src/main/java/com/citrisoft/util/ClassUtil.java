@@ -23,7 +23,7 @@ public class ClassUtil
 
 		try
 		{
-			return classType.cast(Class.forName(className).newInstance());
+			return classType.cast(Class.forName(className).getDeclaredConstructor().newInstance());
 		}
 		catch (Exception e)
 		{

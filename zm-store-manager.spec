@@ -3,7 +3,7 @@
 Name:    zm-store-manager
 Summary: Plugin-based Data Store for Zimbra
 BuildArch: noarch
-Version: 0.5.0
+Version: 0.5.1
 Release: 1
 License: GPLv3
 
@@ -15,10 +15,12 @@ make install DESTDIR=${RPM_BUILD_ROOT}
 
 %files
 %dir /opt/zimbra/conf/storemanager.d
-/opt/zimbra/lib/ext/zimberg/zm-store-manager-0.5.0.jar
+/opt/zimbra/lib/ext/zimberg/zm-store-manager-0.5.1.jar
 /opt/zimbra/bin/zimberg
 
 %changelog
+* Fri Oct 29 2021  Matthew Berg <mberg@citrisoft.com> -  0.5.1-1
+- Initial compression support
 * Tue Oct 26 2021  Matthew Berg <mberg@citrisoft.com> -  0.5.0-1
 - New namespace
 - Removing deprecated backends
