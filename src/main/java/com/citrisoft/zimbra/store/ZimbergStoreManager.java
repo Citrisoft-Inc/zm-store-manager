@@ -90,7 +90,7 @@ public class ZimbergStoreManager
 	{
 		String[] parts = locator.split("@@", 2);
 
-		return (parts.length == 2) ? parts[0] : null;
+		return (parts.length == 2) ? parts[0] : fallbackName.value();
 	}
 
 	/**
@@ -147,7 +147,7 @@ public class ZimbergStoreManager
 	/**
 	 * Presists the object to a specific store backand
 	 *
-	 * @param is The data stream for a mailbox blob
+	 * @param rawInputStream The data stream for a mailbox blob
 	 * @param actualSize The full size of a mailbox blob
 	 * @param mbox The mailbox to recieve a mailbox blob
 	 * @param profile The destination profile
