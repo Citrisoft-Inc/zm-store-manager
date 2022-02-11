@@ -27,6 +27,7 @@ public class S3Backend
 	public String bucket;
 	public String accessKey;
 	public String secretKey;
+	public Boolean prependBucket;
 
 	public S3Backend(Properties props)
 	{
@@ -36,13 +37,14 @@ public class S3Backend
 		this.bucket = props.getProperty("s3_bucket");
 		this.accessKey = props.getProperty("s3_access_key");
 		this.secretKey = props.getProperty("s3_secret_key");
+		this.prependBucket = Boolean.parseBoolean(props.getProperty("s3_prepend_bucket", "true"));
 
 	}	
 
 	public URI generateURI(String location)
 	{
-
-		return baseURI.resolve("/"+bucket+"/"+location);
+		return baseURI.resolve(prependBucket ? "/"+bucket+"/"+location : "/"+location);
+		//return baseURI.resolve("/"+bucket+"/"+location);
 	}
 
 	/**
