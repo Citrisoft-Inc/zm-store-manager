@@ -3,7 +3,7 @@
 Name:    zm-store-manager
 Summary: Plugin-based Data Store for Zimbra
 BuildArch: noarch
-Version: 0.5.1
+Version: 0.5.4
 Release: 1
 License: GPLv3
 
@@ -15,10 +15,16 @@ make install DESTDIR=${RPM_BUILD_ROOT}
 
 %files
 %dir /opt/zimbra/conf/storemanager.d
-/opt/zimbra/lib/ext/zimberg/zm-store-manager-0.5.1.jar
+/opt/zimbra/lib/ext/zimberg/zm-store-manager-0.5.4.jar
 /opt/zimbra/bin/zimberg
 
 %changelog
+* Fri Feb 11 2022  Matthew Berg <mberg@citrisoft.com> -  0.5.4-1
+- update getProfileName to return fallback if not set
+* Mon Feb 07 2022  Matthew Berg <mberg@citrisoft.com> -  0.5.3-1
+- Optionally don't append bucket name in s3 driver
+* Mon Nov 11 2021  Matthew Berg <mberg@citrisoft.com> -  0.5.2-1
+- Add support for additional Scality drivers
 * Fri Oct 29 2021  Matthew Berg <mberg@citrisoft.com> -  0.5.1-1
 - Initial compression support
 * Tue Oct 26 2021  Matthew Berg <mberg@citrisoft.com> -  0.5.0-1
