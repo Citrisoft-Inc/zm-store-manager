@@ -12,8 +12,8 @@ public class ScalityBackend
 	public ScalityBackend(Properties props)
 	{
 		super(props);
-		String useArcStr = props.getProperty("scality_use_arc");
-		prefix = Boolean.parseBoolean(useArcStr) ? "/proxy/arc/" : "/proxy/chord/";
+		String driverStr = props.getProperty("scality_driver");
+		prefix = "/proxy/" + driverStr + "/";
 	}
 
 	public URI generateURI(String location)
