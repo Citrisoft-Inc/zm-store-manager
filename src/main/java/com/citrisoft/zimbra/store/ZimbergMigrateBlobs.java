@@ -146,8 +146,11 @@ public class ZimbergMigrateBlobs
 
 						try
 						{
-							if (delete)
+							if (delete) {
 								sm.deleteFromStore(blobInfo.locator, mbox);
+							} else {
+								Zimbra.log.store.debug("String.format("skipping delete for %s, blobInfo.locator"));
+							}
 						}
 						catch (IOException e)
 						{
